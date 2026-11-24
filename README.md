@@ -2,8 +2,6 @@
 
 A multi-clinic deployment platform for AI voice agents in healthcare front-desk workflows. Clinics are configured once, published as immutable versions, and scheduled against a PostgreSQL-backed scheduling engine that the voice agent will call.
 
-> **Demo project.** All clinics and patients are fictional. Patient verification is simulated and there is no integration with any real EHR. Not for use with real patient data.
-
 ## Status
 
 | Milestone | Scope | State |
@@ -67,7 +65,7 @@ To confirm it works, open `/api/health`, `/api/health/db` and the interactive do
 
 ### Seed data
 
-`python -m app.seed` creates the two fictional clinics and three fictional patients each (idempotent). Without `--publish` the clinics stay drafts; with it, both are published so scheduling works. The demo verification credentials (a fictional date of birth and the last four phone digits) are listed in `apps/api/app/seed.py`.
+`python -m app.seed` creates two sample clinics (Northstar Family Medicine and Lakeside Dermatology) and three sample patients each (idempotent). Without `--publish` the clinics stay drafts; with it, both are published so scheduling works. The sample verification credentials (date of birth and last four phone digits) are listed in `apps/api/app/seed.py`.
 
 ### Scheduling test console
 
@@ -115,7 +113,7 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 
 ## Limitations
 
-- Verification is simulated; there is no real identity proofing and no staff roles.
+- Verification is simulated (no real identity proofing, no staff roles), and there is no integration with an external EHR.
 - One bookable resource per clinic: no providers or rooms.
 - The M1 configuration endpoints are unauthenticated.
 - Design exports from Stitch are not yet in `design/`, so the UI makes no claim of visual fidelity.
