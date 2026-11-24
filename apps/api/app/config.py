@@ -9,6 +9,14 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://caredeploy:caredeploy@localhost:5432/caredeploy"
     cors_origins: str = "http://localhost:3100"
 
+    # Scheduling (M2)
+    authorization_ttl_minutes: int = 15
+    proposal_ttl_minutes: int = 5
+    operation_lease_seconds: int = 30
+    idempotency_wait_seconds: float = 3.0
+    verification_max_attempts: int = 5
+    verification_lockout_minutes: int = 10
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

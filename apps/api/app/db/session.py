@@ -26,3 +26,9 @@ async def get_session() -> AsyncIterator[AsyncSession]:
     assert _sessionmaker is not None
     async with _sessionmaker() as session:
         yield session
+
+
+def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
+    get_engine()
+    assert _sessionmaker is not None
+    return _sessionmaker

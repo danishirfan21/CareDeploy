@@ -134,6 +134,9 @@ async def update_config(
     try:
         await svc.save_config(session, clinic, body)
         await session.commit()
+    except svc.UnknownAppointmentTypeError as e:
+        await session.rollback()
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(e)) from None
     except IntegrityError:
         await session.rollback()
         raise _duplicate_name() from None

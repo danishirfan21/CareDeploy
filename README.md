@@ -20,7 +20,7 @@ cd apps/web          # new terminal
 npm install
 npm run dev          # http://localhost:3100
 ```
-Seed the two fictional clinics (idempotent): `cd apps/api; .venv\Scripts\python -m app.seed`.
+Seed the two fictional clinics and their fictional patients (idempotent): `cd apps/api; .venv\Scripts\python -m app.seed`. Add `--publish` to also publish both configurations so scheduling works (`/dev/scheduling` is the development test console; demo verification uses a fictional date of birth and last four phone digits, see `apps/api/app/seed.py`).
 
 Verify: `http://localhost:8000/api/health`, `/api/health/db`, API docs at `http://localhost:8000/docs`, and the Clinics page lists Northstar Family Medicine and Lakeside Dermatology.
 
@@ -46,6 +46,9 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test` (drop
 
 ## API conventions
 Routes live under `/api`. Pydantic schemas in `apps/api/app/schemas.py` are mirrored by hand in `apps/web/src/lib/api/types.ts`; all calls go through `apps/web/src/lib/api/client.ts`.
+
+## Scheduling (M2)
+Synthetic-patient scheduling backend: availability, confirmed booking/rescheduling/cancellation, idempotent operations, DST-aware clinic time. Simulated verification only; no real EHR integration. See `docs/scheduling.md`, `docs/authorization.md`, `docs/idempotency.md`, `docs/data-model.md`. Requires PostgreSQL with the `btree_gist` extension (bundled with standard PostgreSQL; the migration creates it, which needs a role allowed to create extensions).
 
 ## Design
 Stitch exports go in `design/` (see `design/README.md`).

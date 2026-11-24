@@ -12,7 +12,13 @@
 - `operating_hours`, `appointment_types`, `scheduling_policies`, `agent_configs`: the editable **draft**; every row has `clinic_id` (FK, RESTRICT).
 - `config_versions`: immutable published snapshots (JSONB) numbered per clinic. A PostgreSQL trigger rejects UPDATE and DELETE, so immutability does not depend on application code.
 - Saving a draft (`PUT /api/clinics/{id}/config`) enforces structure (times, durations, uniqueness). `POST .../config/validate` adds publish-readiness rules (cross-field consistency). Publishing re-validates, refuses unchanged drafts (409) and writes the next version.
-- Appointment types are replaced on each draft save (ids are not stable yet).
+- Appointment types have stable ids (M2): saves upsert by id and archive removed types instead of deleting them. See `docs/scheduling.md`.
+
+## M2 scheduling engine
+- `app/scheduling/`: `engine.py` (pure rules: time zones, DST, slots, overlap, lifecycle), `published.py` (reads the latest published snapshot), `auth.py` (simulated verification, expiring server-issued tokens), `service.py` (availability, proposals, book/reschedule/cancel), `idempotency.py` (claim/work protocol, recovery), `adapter.py` (typed `SchedulingAdapter` Protocol + the single PostgreSQL implementation), `runtime.py` (injectable clock and fault points for tests).
+- `app/api/scheduling.py` exposes it under `/api/clinics/{id}/...` with a distinct error envelope.
+- Double-booking is prevented by a PostgreSQL exclusion constraint, not by application checks. State changes go through a confirmed proposal and an idempotency key.
+- Details: `docs/scheduling.md`, `docs/authorization.md`, `docs/idempotency.md`, `docs/data-model.md`. The voice agent (M3) is not built; it will call the adapter.
 
 ## Frontend
-Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheComponents` is disabled. The UI is deliberately functional and unpolished until the Stitch screens are provided.
+Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheComponents` is disabled. The UI is deliberately functional and unpolished until the Stitch screens are provided. `/dev/scheduling` is a development/test console for the scheduling API (not in the navigation, not a patient portal).

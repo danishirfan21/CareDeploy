@@ -1,5 +1,23 @@
 # Implementation status
 
+## M2 - Scheduling engine and reliability (2026-11-24)
+
+### Verified (actually executed)
+- Backend: `ruff check`, `ruff format --check`, `mypy` (strict, 40 source files) clean; `pytest` **97 passed** against real PostgreSQL (`caredeploy_test`): 22 M1/M0 tests unchanged plus 13 pure engine tests (hours, closed days, boundary spanning, past, notice/horizon, half-open overlap, durations, bounded listing, DST spring-forward 2026-03-08 and fall-back 2026-11-01, lifecycle), 44 API integration tests (availability, booking, double booking, idempotent retry and key collision, replayed failures, reschedule success/conflict/policy/authorization, cancel/repeat/policy, audit history, proposals: unconfirmed/wrong token/modified details/replay/expiry/rejection/cross-patient/cross-clinic/stale appointment, verification lockout and token expiry, tenant isolation, draft-vs-published semantics, stable type ids and frozen history, archived types), 16 reliability tests (concurrent bookings -> exactly one winner, concurrent identical retries -> one appointment and one operation, concurrent reschedules and cancel-vs-reschedule, injected faults before commit / in work / after commit, lost-response reconciliation, no leaked DB text, exclusion constraint, composite-FK cross-clinic rejection, check constraints, append-only trigger, per-clinic key uniqueness, snapshot immutability) and 2 migration tests on a scratch database (M1 rows survive 0003, downgrade to 0002 and re-upgrade, `alembic check` finds no model/migration drift).
+- Concurrency tests repeated 17 times in a row without failure. One earlier first-run failure of `test_many_concurrent_bookings_never_overlap` (an assertion on response status codes) was **not reproduced** and its cause was not identified; its assertion now prints the offending responses if it recurs.
+- Migrations: `alembic upgrade head` through 0003 on the dev database (additive).
+- Frontend: `eslint`, `tsc`, `prettier --check` (src, e2e), `next build` pass. Playwright: **14 passed** (13 earlier + a test of the `/dev/scheduling` console: failed then successful verification, availability, propose, confirm, book, cancel).
+
+### Not verified / limitations
+- **GitHub Actions has not run for M2.** The workflow is unchanged (its PostgreSQL service user is a superuser, which `CREATE EXTENSION btree_gist` and the migration tests need); it has never run remotely.
+- Docker Compose still never run.
+- Verification is simulated (fictional DOB + last four phone digits); no real identity proofing, no staff roles, M1 config endpoints remain unauthenticated.
+- Single bookable resource per clinic (no providers/rooms). Slot step fixed at 15 minutes. No endpoint marks appointments `completed`. Cancel/reschedule apply the current published policy.
+- Concurrency tested in a single API process against real PostgreSQL; no multi-process or load testing. Fault injection is a test seam, not real network failure.
+- Clinics published under M1 (before type ids existed) must be republished before they can be scheduled.
+- The seeded clinics stay drafts unless `python -m app.seed --publish` is used; the dev-console Playwright spec publishes Northstar and is named so it runs last.
+
+
 ## M1 - Multi-clinic management and configuration (2026-11-24)
 
 ### Verified (actually executed)
@@ -14,7 +32,7 @@
 - **Docker Compose** still never run (Docker not installed). **GitHub Actions** workflow updated for M1 but never run.
 - Stitch exports are absent, so the UI makes no claim of visual fidelity to any design.
 - "Draft" is the live editable rows; publishing snapshots them into an immutable `config_versions` row. There is no separate draft table or per-field history.
-- Appointment-type and operating-hour rows are replaced on every save, so their ids are not stable across saves.
+- (Superseded in M2: appointment types now have stable ids; operating-hour rows are still replaced on save.)
 - Publishing does **not** create a live voice agent; the UI says so. Playground (M3) and evaluations (M4) are explicitly unavailable pages.
 - No authentication or multi-user concurrency control beyond a row lock during publish.
 - Browser coverage is Chromium only; responsive layout was not tested at mobile widths in e2e.

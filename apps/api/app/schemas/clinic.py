@@ -98,6 +98,10 @@ class OperatingHoursEntry(BaseModel):
 
 
 class AppointmentTypeEntry(BaseModel):
+    """`id` is the stable identity of the appointment type. Omit it for a new type; send back
+    the id you received to keep the type's identity across edits (including renames)."""
+
+    id: uuid.UUID | None = None
     name: str = Field(min_length=1, max_length=100)
     duration_minutes: int = Field(ge=5, le=480)
     requires_human_escalation: bool = False

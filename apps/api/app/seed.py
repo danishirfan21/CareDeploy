@@ -1,15 +1,20 @@
 """Seed two fictional clinics. Idempotent: existing clinics (by name) are left untouched.
 
-Usage: python -m app.seed
+Usage: python -m app.seed [--publish]
+
+--publish also publishes each seeded clinic's configuration (required before scheduling works).
+Synthetic patients are always seeded. All data is fictional.
 """
 
 import asyncio
+import sys
+from datetime import date
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_engine
-from app.models import Clinic
+from app.models import Clinic, Patient
 from app.schemas.clinic import (
     AgentBehavior,
     AppointmentTypeEntry,
@@ -140,6 +145,60 @@ LAKESIDE = ClinicConfig(
 )
 
 
+# Fictional demo patients. Verification (simulated): date of birth + last 4 digits of phone.
+PATIENTS: dict[str, list[tuple[str, date, str, str]]] = {
+    "Northstar Family Medicine": [
+        ("Avery Quinn", date(1985, 4, 12), "(512) 555-0101", "avery.quinn@example.test"),
+        ("Jordan Ellis", date(1990, 9, 30), "(512) 555-0102", "jordan.ellis@example.test"),
+        ("Morgan Reyes", date(1978, 1, 22), "(512) 555-0103", "morgan.reyes@example.test"),
+    ],
+    "Lakeside Dermatology": [
+        ("Casey Nakamura", date(1992, 6, 15), "(303) 555-0201", "casey.nakamura@example.test"),
+        ("Riley Okafor", date(1988, 11, 3), "(303) 555-0202", "riley.okafor@example.test"),
+        ("Sam Whitfield", date(1975, 2, 8), "(303) 555-0203", "sam.whitfield@example.test"),
+    ],
+}
+
+
+async def seed_patients(session: AsyncSession) -> int:
+    added = 0
+    for clinic_name, people in PATIENTS.items():
+        clinic_id = await session.scalar(select(Clinic.id).where(Clinic.name == clinic_name))
+        if clinic_id is None:
+            continue
+        for name, dob, phone, email in people:
+            exists = await session.scalar(
+                select(Patient.id).where(Patient.clinic_id == clinic_id, Patient.full_name == name)
+            )
+            if exists is None:
+                session.add(
+                    Patient(
+                        clinic_id=clinic_id,
+                        full_name=name,
+                        date_of_birth=dob,
+                        phone=phone,
+                        email=email,
+                    )
+                )
+                added += 1
+    await session.flush()
+    return added
+
+
+async def publish_seeded(session: AsyncSession) -> list[str]:
+    published: list[str] = []
+    for config in (NORTHSTAR, LAKESIDE):
+        clinic = await session.scalar(select(Clinic).where(Clinic.name == config.details.name))
+        if clinic is None:
+            continue
+        try:
+            await svc.publish(session, clinic)
+            published.append(config.details.name)
+        except svc.ConfigNotChangedError:
+            pass
+    return published
+
+
 async def seed(session: AsyncSession) -> list[str]:
     created: list[str] = []
     for config in (NORTHSTAR, LAKESIDE):
@@ -151,6 +210,7 @@ async def seed(session: AsyncSession) -> list[str]:
         await session.flush()
         await svc.save_config(session, clinic, config)
         created.append(config.details.name)
+    await seed_patients(session)
     await session.commit()
     return created
 
@@ -161,8 +221,14 @@ async def main() -> None:
     engine = get_engine()
     async with async_sessionmaker(engine)() as session:
         created = await seed(session)
+        published: list[str] = []
+        if "--publish" in sys.argv:
+            published = await publish_seeded(session)
+            await session.commit()
     await engine.dispose()
     print(f"Seeded: {', '.join(created) if created else 'nothing (already present)'}")
+    if "--publish" in sys.argv:
+        print(f"Published: {', '.join(published) if published else 'nothing (already published)'}")
 
 
 if __name__ == "__main__":

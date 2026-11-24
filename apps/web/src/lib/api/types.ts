@@ -58,6 +58,8 @@ export interface OperatingHoursEntry {
 }
 
 export interface AppointmentTypeEntry {
+  /** Stable identity assigned by the server; omit for new types. */
+  id?: string | null;
   name: string;
   duration_minutes: number;
   requires_human_escalation: boolean;

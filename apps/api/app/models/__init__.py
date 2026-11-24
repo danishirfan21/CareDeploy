@@ -6,8 +6,22 @@ from app.models.config import (
     OperatingHours,
     SchedulingPolicy,
 )
+from app.models.scheduling import (
+    Appointment,
+    AppointmentEvent,
+    Operation,
+    Patient,
+    PatientAuthorization,
+    Proposal,
+)
 
 __all__ = [
+    "Appointment",
+    "AppointmentEvent",
+    "Operation",
+    "Patient",
+    "PatientAuthorization",
+    "Proposal",
     "AgentConfig",
     "AppointmentType",
     "Clinic",

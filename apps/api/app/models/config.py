@@ -7,6 +7,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     SmallInteger,
     String,
@@ -14,6 +15,7 @@ from sqlalchemy import (
     Time,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -43,8 +45,16 @@ class OperatingHours(Base):
 class AppointmentType(Base):
     __tablename__ = "appointment_types"
     __table_args__ = (
-        UniqueConstraint("clinic_id", "name"),
+        UniqueConstraint("clinic_id", "id", name="uq_appointment_types_clinic_id_id"),
         CheckConstraint("duration_minutes > 0", name="duration_positive"),
+        # Names are unique among *active* types; archived types keep their identity for history.
+        Index(
+            "uq_appointment_types_active_name",
+            "clinic_id",
+            text("lower(name)"),
+            unique=True,
+            postgresql_where=text("archived_at IS NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -54,6 +64,9 @@ class AppointmentType(Base):
     duration_minutes: Mapped[int] = mapped_column(Integer)
     requires_human_escalation: Mapped[bool] = mapped_column(Boolean, default=False)
     constraints: Mapped[str] = mapped_column(Text, default="")
+    # Types are never hard-deleted: removing one from the draft archives it, so published
+    # versions and appointments keep a valid, stable reference.
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class SchedulingPolicy(Base):

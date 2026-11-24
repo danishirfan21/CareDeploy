@@ -1,4 +1,5 @@
 import uuid
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import delete, func, select
@@ -30,6 +31,10 @@ WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 
 class ConfigNotChangedError(Exception):
     """Publishing would duplicate the latest published version."""
+
+
+class UnknownAppointmentTypeError(ValueError):
+    """The draft references an appointment-type id that does not belong to this clinic."""
 
 
 class ConfigInvalidError(Exception):
@@ -92,7 +97,7 @@ async def build_config(session: AsyncSession, clinic: Clinic) -> ClinicConfig:
     types = (
         await session.scalars(
             select(AppointmentType)
-            .where(AppointmentType.clinic_id == clinic.id)
+            .where(AppointmentType.clinic_id == clinic.id, AppointmentType.archived_at.is_(None))
             .order_by(AppointmentType.position)
         )
     ).all()
@@ -107,6 +112,7 @@ async def build_config(session: AsyncSession, clinic: Clinic) -> ClinicConfig:
         ],
         appointment_types=[
             AppointmentTypeEntry(
+                id=t.id,
                 name=t.name,
                 duration_minutes=t.duration_minutes,
                 requires_human_escalation=t.requires_human_escalation,
@@ -136,16 +142,12 @@ async def save_config(session: AsyncSession, clinic: Clinic, config: ClinicConfi
     clinic.timezone, clinic.phone, clinic.email = d.timezone, d.phone, d.email
 
     await session.execute(delete(OperatingHours).where(OperatingHours.clinic_id == clinic.id))
-    await session.execute(delete(AppointmentType).where(AppointmentType.clinic_id == clinic.id))
     await session.flush()
     session.add_all(
         OperatingHours(clinic_id=clinic.id, weekday=h.weekday, opens=h.opens, closes=h.closes)
         for h in config.hours
     )
-    session.add_all(
-        AppointmentType(clinic_id=clinic.id, position=i, **t.model_dump())
-        for i, t in enumerate(config.appointment_types)
-    )
+    await _save_types(session, clinic, config)
 
     policy = await session.scalar(
         select(SchedulingPolicy).where(SchedulingPolicy.clinic_id == clinic.id)
@@ -164,6 +166,67 @@ async def save_config(session: AsyncSession, clinic: Clinic, config: ClinicConfi
         for k, v in config.agent.model_dump().items():
             setattr(agent, k, v)
     await session.flush()
+
+
+async def _save_types(session: AsyncSession, clinic: Clinic, config: ClinicConfig) -> None:
+    """Upsert by stable id. Types removed from the draft are archived, never deleted, so
+    published versions and appointments keep a valid reference."""
+    existing = {
+        t.id: t
+        for t in (
+            await session.scalars(
+                select(AppointmentType).where(AppointmentType.clinic_id == clinic.id)
+            )
+        ).all()
+    }
+    keep: set[uuid.UUID] = set()
+    for entry in config.appointment_types:
+        if entry.id is not None and entry.id not in existing:
+            raise UnknownAppointmentTypeError(f"Unknown appointment type id {entry.id}")
+        if entry.id is not None:
+            keep.add(entry.id)
+
+    # Archive removed types first (frees their names), then rename/update, then insert.
+    now = datetime.now(UTC)
+    for tid, row in existing.items():
+        if tid not in keep and row.archived_at is None:
+            row.archived_at = now
+    await session.flush()
+    # Park retained rows on unique placeholder names so renames/swaps cannot collide mid-flush.
+    retained = [existing[i] for i in keep]
+    for row in retained:
+        row.archived_at = None
+        row.name = f"~{row.id}"
+    await session.flush()
+    fields = {"name", "duration_minutes", "requires_human_escalation", "constraints"}
+    for pos, entry in enumerate(config.appointment_types):
+        data = entry.model_dump(include=fields)
+        if entry.id is not None:
+            row = existing[entry.id]
+            for k, v in data.items():
+                setattr(row, k, v)
+            row.position = pos
+        else:
+            session.add(AppointmentType(clinic_id=clinic.id, position=pos, **data))
+    await session.flush()
+
+
+def _strip_ids(snapshot: dict[str, Any]) -> dict[str, Any]:
+    out = {**snapshot}
+    out["appointment_types"] = [
+        {k: v for k, v in t.items() if k != "id"} for t in snapshot.get("appointment_types", [])
+    ]
+    return out
+
+
+def snapshot_has_type_ids(snapshot: dict[str, Any]) -> bool:
+    types = snapshot.get("appointment_types", [])
+    return all(t.get("id") for t in types)
+
+
+def same_content(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    """Compare configurations ignoring appointment-type ids (M1 snapshots predate them)."""
+    return _strip_ids(a) == _strip_ids(b)
 
 
 def snapshot_of(config: ClinicConfig) -> dict[str, Any]:
@@ -234,7 +297,7 @@ def validate_config(config: ClinicConfig) -> ValidationResult:
 
 
 async def has_unpublished_changes(config: ClinicConfig, latest: ConfigVersion | None) -> bool:
-    return latest is None or latest.snapshot != snapshot_of(config)
+    return latest is None or not same_content(latest.snapshot, snapshot_of(config))
 
 
 async def publish(session: AsyncSession, clinic: Clinic) -> ConfigVersion:
@@ -246,7 +309,11 @@ async def publish(session: AsyncSession, clinic: Clinic) -> ConfigVersion:
         raise ConfigInvalidError(result)
     latest = await latest_version(session, clinic.id)
     snapshot = snapshot_of(config)
-    if latest is not None and latest.snapshot == snapshot:
+    if (
+        latest is not None
+        and same_content(latest.snapshot, snapshot)
+        and snapshot_has_type_ids(latest.snapshot)
+    ):
         raise ConfigNotChangedError
     version = ConfigVersion(
         clinic_id=clinic.id, version=(latest.version if latest else 0) + 1, snapshot=snapshot
