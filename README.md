@@ -20,7 +20,9 @@ cd apps/web          # new terminal
 npm install
 npm run dev          # http://localhost:3100
 ```
-Verify: `http://localhost:8000/api/health`, `/api/health/db`, and the home page shows `API: ok` / `Database: ok`.
+Seed the two fictional clinics (idempotent): `cd apps/api; .venv\Scripts\python -m app.seed`.
+
+Verify: `http://localhost:8000/api/health`, `/api/health/db`, API docs at `http://localhost:8000/docs`, and the Clinics page lists Northstar Family Medicine and Lakeside Dermatology.
 
 Port 3100 is used for the web app to avoid clashing with other local apps on 3000.
 
@@ -40,7 +42,7 @@ cd apps/api; .venv\Scripts\ruff check .; .venv\Scripts\ruff format --check .; .v
 cd apps/web; npm run lint; npm run typecheck; npm run format:check; npm run build
 cd apps/web; npx playwright install chromium; npm run test:e2e   # needs API + Postgres running
 ```
-`pytest -m "not db"` skips tests that need Postgres.
+Backend tests run against a real PostgreSQL database named `<dev db>_test` (dropped, recreated and migrated each run). Playwright starts its own API (:8001), web app (:3101) and database `caredeploy_e2e`, so the development database is never modified by tests. Ports 8001/3101 must be free.
 
 ## API conventions
 Routes live under `/api`. Pydantic schemas in `apps/api/app/schemas.py` are mirrored by hand in `apps/web/src/lib/api/types.ts`; all calls go through `apps/web/src/lib/api/client.ts`.

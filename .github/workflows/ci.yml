@@ -50,12 +50,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12", cache: pip }
+        with: { python-version: "3.12" }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm, cache-dependency-path: apps/web/package-lock.json }
-      - run: pip install -e ".[dev]" && alembic upgrade head
-        working-directory: apps/api
-      - run: nohup uvicorn app.main:app --port 8000 &
+      # Playwright starts the API from apps/api/.venv and recreates its own caredeploy_e2e database.
+      - run: python -m venv .venv && .venv/bin/pip install -e ".[dev]"
         working-directory: apps/api
       - run: npm ci && npx playwright install --with-deps chromium && npm run test:e2e
         working-directory: apps/web

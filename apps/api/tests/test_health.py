@@ -1,17 +1,8 @@
-from collections.abc import AsyncIterator
-
 import pytest
-from httpx import ASGITransport, AsyncClient
+from httpx import AsyncClient
 from sqlalchemy import text
 
 from app.db.session import get_engine
-from app.main import app
-
-
-@pytest.fixture
-async def client() -> AsyncIterator[AsyncClient]:
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-        yield c
 
 
 async def test_health(client: AsyncClient) -> None:

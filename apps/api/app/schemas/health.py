@@ -1,4 +1,4 @@
-"""Shared API contracts. The frontend mirrors these in apps/web/src/lib/api/types.ts."""
+"""Health contracts."""
 
 from typing import Literal
 
