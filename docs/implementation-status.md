@@ -11,7 +11,7 @@
 ### Not verified / limitations
 - **GitHub Actions has not run for M2.** The workflow is unchanged (its PostgreSQL service user is a superuser, which `CREATE EXTENSION btree_gist` and the migration tests need); it has never run remotely.
 - Docker Compose still never run.
-- Verification is simulated (fictional DOB + last four phone digits); no real identity proofing, no staff roles, M1 config endpoints remain unauthenticated.
+- Verification is simulated (DOB + last four phone digits); no real identity proofing, no staff roles, M1 config endpoints remain unauthenticated.
 - Single bookable resource per clinic (no providers/rooms). Slot step fixed at 15 minutes. No endpoint marks appointments `completed`. Cancel/reschedule apply the current published policy.
 - Concurrency tested in a single API process against real PostgreSQL; no multi-process or load testing. Fault injection is a test seam, not real network failure.
 - Clinics published under M1 (before type ids existed) must be republished before they can be scheduled.

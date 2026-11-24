@@ -1,8 +1,8 @@
 # Scheduling (M2)
 
-A PostgreSQL-backed scheduling engine for the fictional clinics. It is a **simulated EHR**: nothing
+A PostgreSQL-backed scheduling engine for the sample clinics. It is a **simulated EHR**: nothing
 here integrates with, or claims to integrate with, Epic, Cerner or any real system, and all
-patients are synthetic. The voice agent (M3) is not built; M2 provides the backend it will call.
+patients are sample records. The voice agent (M3) is not built; M2 provides the backend it will call.
 
 ## Domain assumptions
 
@@ -87,7 +87,7 @@ All under `/api/clinics/{clinic_id}`; scheduling errors use `{"error": {"code", 
 
 | Method & path | Purpose |
 | --- | --- |
-| `GET /patients?name\|phone` | Synthetic-patient lookup (id + name only) |
+| `GET /patients?name\|phone` | Patient lookup (id + name only) |
 | `POST /patients/{id}/verify` | Simulated verification; returns expiring bearer token |
 | `GET /scheduling` | Published timezone, version, schedulable types |
 | `GET /availability` | Open slots |
@@ -122,7 +122,7 @@ of that exists here.
 
 ## Local development
 
-`python -m app.seed --publish` seeds and publishes both clinics plus six fictional patients. The
+`python -m app.seed --publish` seeds and publishes both clinics plus six sample patients. The
 development console at `/dev/scheduling` (not linked from navigation; development/test only, not a
 patient portal) walks verify -> availability -> propose -> confirm -> book -> cancel.
 

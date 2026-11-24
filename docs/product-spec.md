@@ -30,7 +30,7 @@ Minimal, ChatGPT-inspired workspace: collapsible sidebar, generous whitespace, r
 - **M6** Hardening, auth, deployment, documentation, v1.0.
 
 ## Exclusions (v1.0)
-- Real patient data, PHI, or HIPAA compliance claims. All clinics are fictional.
+- Real patient data, PHI, or HIPAA compliance claims.
 - Real telephony or production deployment of live agents. Publishing a configuration version does **not** make a live voice agent available.
 - Enterprise dashboards, KPI grids, billing, role administration.
 - A general-purpose AI assistant input.

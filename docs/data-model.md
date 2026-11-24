@@ -16,7 +16,7 @@ partial unique index over active rows only (`WHERE archived_at IS NULL`).
 
 | Table | Notes |
 | --- | --- |
-| `patients` | Synthetic, clinic-scoped: name, DOB, phone, email, `verification_method`, failed-attempt counter, `locked_until`, `last_verified_at`. Unique `(clinic_id, id)`. |
+| `patients` | Sample records, clinic-scoped: name, DOB, phone, email, `verification_method`, failed-attempt counter, `locked_until`, `last_verified_at`. Unique `(clinic_id, id)`. |
 | `patient_authorizations` | Hashed bearer token, `expires_at`, `revoked_at`; composite FK to patient. |
 | `appointments` | Clinic, patient, `appointment_type_id`, frozen `type_name`/`duration_minutes`/`timezone`, UTC `start_at`/`end_at`, `status` (`scheduled/completed/cancelled`), `config_version`, `reschedule_count`, `row_version`, cancellation metadata, timestamps. Exclusion constraint `ex_appointments_no_overlap`; checks `end_at > start_at`, valid status, cancelled-fields consistency. Composite FKs to patients and appointment types. |
 | `appointment_events` | Append-only audit (trigger blocks UPDATE/DELETE): event type, actor, operation id, config version, details. |

@@ -1,7 +1,7 @@
 # Authorization and confirmation (M2)
 
-> **Verification here is simulated.** Matching a fictional date of birth and the last four digits
-> of a fictional phone number is *not* identity proofing and must not be used for real patients.
+> **Verification here is simulated.** Matching a date of birth and the last four digits
+> of a phone number is *not* identity proofing and must not be used for real patients.
 > It exists so the backend can enforce a server-issued, expiring, patient-bound authorization,
 > which is the mechanism a real verification step would plug into.
 
