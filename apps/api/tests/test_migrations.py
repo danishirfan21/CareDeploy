@@ -103,3 +103,28 @@ def test_models_match_migrations(scratch: str) -> None:
     assert _alembic("upgrade", "head").returncode == 0
     r = _alembic("check")
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_evaluation_migration_is_additive_and_reversible(scratch: str) -> None:
+    assert _alembic("upgrade", "0004").returncode == 0
+    with psycopg.connect(scratch) as conn:
+        assert conn.execute("SELECT to_regclass('public.eval_runs')").fetchone() == (None,)
+    assert _alembic("upgrade", "head").returncode == 0
+    with psycopg.connect(scratch) as conn:
+        names = {
+            r[0]
+            for r in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
+            )
+        }
+        assert {"eval_runs", "eval_scenario_results", "eval_events"} <= names
+        triggers = {
+            r[0] for r in conn.execute("SELECT tgname FROM pg_trigger WHERE NOT tgisinternal")
+        }
+        assert "eval_runs_immutable" in triggers
+    r = _alembic("downgrade", "0004")
+    assert r.returncode == 0, r.stderr
+    with psycopg.connect(scratch) as conn:
+        assert conn.execute("SELECT to_regclass('public.eval_runs')").fetchone() == (None,)
+        assert conn.execute("SELECT to_regclass('public.appointments')").fetchone() != (None,)
+    assert _alembic("upgrade", "head").returncode == 0

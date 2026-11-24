@@ -174,7 +174,7 @@ async def test_booking_end_to_end_commits_exactly_one(_voice: None, world: World
     await rig.say("Yes, please book that.")
     done = await rig.box.call("confirm_operation", {"caller_words": "yes please book that"})
     assert done.status == "committed" and done.operation_id
-    assert rig.tracker.operation == Operation.COMMITTED
+    assert rig.tracker.operation == Operation.COMMITTED  # type: ignore[comparison-overlap]  # tool calls mutate the tracker; mypy cannot see it
     assert await rig.count("Avery") == 1
     assert rig.box.outcome() == "appointment_booked"
 
@@ -384,7 +384,7 @@ async def test_backend_down_is_reported_as_uncertain_then_resolved(
     later = await rig.box.call("get_operation_status", {})
     assert later.status == "committed", later
     assert await rig.count("Avery") == 1
-    assert rig.tracker.operation == Operation.COMMITTED
+    assert rig.tracker.operation == Operation.COMMITTED  # type: ignore[comparison-overlap]  # tool calls mutate the tracker; mypy cannot see it
 
 
 # ------------------------------------------------------------------ verification --------------
