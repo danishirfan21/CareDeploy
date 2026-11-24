@@ -11,7 +11,7 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M2 | Scheduling engine, confirmed and idempotent booking, reliability tests | Done |
 | M2.5 | Stitch UI integration (frontend only) | Done |
 | M3 | LiveKit voice agent and Playground | Partially complete: built and tested without audio; live voice verification blocked on credentials |
-| M4 | Evaluations | Not started |
+| M4 | Evaluation engine: 20 scenarios, workflow simulation, readiness and regression views | Done for workflow simulation. LLM and real-audio modes are not run (no approved credentials) |
 
 What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow and Docker Compose setup have not been run yet.
 
@@ -24,6 +24,7 @@ What has and has not been verified is tracked in [`docs/implementation-status.md
 - **Recovery:** retries replay stored outcomes, and uncertain outcomes can be reconciled by operation id or key. A success is never reported before commit.
 - **Typed adapter:** a `SchedulingAdapter` interface with one PostgreSQL implementation, used by the voice agent's tools.
 - **Voice agent (M3):** a LiveKit worker with a speech-to-text, LLM and text-to-speech pipeline. It schedules only through the M2 API, runs on the clinic's frozen published configuration, and reports transcripts, tool activity and outcomes to the Playground. See [`docs/voice-agent.md`](docs/voice-agent.md).
+- **Evaluations (M4):** twenty version-controlled scenarios drive the real voice-agent tools and scheduling API in isolated databases, with deterministic assertions, persisted immutable results, a deployment-readiness view that never merges evidence levels, and regression comparison. See [`docs/evaluations.md`](docs/evaluations.md).
 
 ## Architecture
 
@@ -119,15 +120,20 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 | [`docs/voice-agent.md`](docs/voice-agent.md) | Voice agent design, trust model, verification status |
 | [`docs/voice-session-lifecycle.md`](docs/voice-session-lifecycle.md) | Call states, events, failure handling |
 | [`docs/voice-tools.md`](docs/voice-tools.md) | Agent tools, result statuses, unknown-outcome recovery |
+| [`docs/evaluations.md`](docs/evaluations.md) | Evaluation modes, isolation, runner, API, persistence |
+| [`docs/evaluation-scenarios.md`](docs/evaluation-scenarios.md) | The twenty scenarios and what each asserts |
+| [`docs/deployment-readiness.md`](docs/deployment-readiness.md) | Readiness levels and how to read them |
+| [`docs/verification-debt.md`](docs/verification-debt.md) | Built but not yet verified live |
 | [`docs/implementation-status.md`](docs/implementation-status.md) | What was verified and what was not |
 | [`docs/product-spec.md`](docs/product-spec.md) | Product specification |
 
 ## Limitations
 
 - Verification is simulated (no real identity proofing, no staff roles), and there is no integration with an external EHR.
+- Evaluations: only the deterministic workflow simulation runs. The LLM-conversation and real-audio modes show "Not run" until credentials and spend are approved, so a passing result does not show that a model or speech behaves correctly.
 - Voice: browser microphone only (no telephony). Live calls need LiveKit and speech/LLM credentials and incur paid usage; they have not been run. Not HIPAA compliant.
 - One bookable resource per clinic: no providers or rooms.
 - The M1 configuration endpoints are unauthenticated.
-- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. Evaluations and the Activity list show honest unavailable states until M4.
+- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. The Activity page lists persisted evaluation runs; its Calls tab has no call list yet.
 
 See [`docs/implementation-status.md`](docs/implementation-status.md) for the full list.

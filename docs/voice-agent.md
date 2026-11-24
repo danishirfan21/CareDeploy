@@ -59,3 +59,7 @@ The Playwright tests use a transport that carries no audio and play the worker's
 - The browser follows the call by polling (about 0.7 s), so the transcript can lag the audio slightly.
 - Latency figures are observed by the worker and are not synchronized with the browser clock.
 - Single worker process per call; no load testing.
+
+## Evaluation (M4)
+
+The evaluation engine drives this agent's own `Toolbox`, `SchedulingClient` and `build_instructions` against the real scheduling API; it does not contain a second agent. Changing shared tool behavior therefore changes evaluation results (`apps/api/tests/test_evals_runner.py` mutates the toolbox and requires the confirmation scenario to fail). Scripted workflow runs cannot show that the language model picks these actions or that speech works; those remain live verification items in `verification-debt.md`. The shared instructions do not tell the agent to direct a possible emergency to emergency services; that is recorded as VD-12 and was not changed in M4.

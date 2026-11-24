@@ -1,5 +1,29 @@
 # Implementation status
 
+## M4 - Conversation evaluation engine (2026-11-24): COMPLETE for workflow simulation; LLM and real-audio modes NOT RUN
+
+Twenty version-controlled scenarios (`evals/scenarios/`) drive the real voice-agent `Toolbox`, `SchedulingClient`, `build_instructions` and the real M2 scheduling API on PostgreSQL. Only Mode A (workflow simulation) exists as a runnable mode. Mode B (LLM conversation) is shown as Not run: no provider is implemented, and it needs `EVAL_LLM_API_KEY` plus `EVAL_LLM_APPROVED=true`; nothing was billed. Mode C (real audio) has no runner. Live voice verification from M3 is still outstanding (see `verification-debt.md`). Pass rates of different modes are never combined.
+
+### Verified (actually executed)
+- Backend: ruff, ruff format and strict mypy clean (70 files). pytest: 174 tests (97 + 28 earlier, plus 49 new: 21 unit, 10 runner, 17 API/worker, 1 migration), all passing. The full run took 17-24 minutes; one clean full run had two failures from a scratch-database check that saw another database's leftover (fixed by scoping the check) and the two tests then passed alone. The test-file edits after the last full run are the leftover-check scope and two `type: ignore` comments; neither was followed by a second complete 174-test run.
+- Mutation tests show evaluation really drives shared code: weakening the toolbox confirmation rule turns EVAL-016 red; weakening the scheduling engine turns the integrity scenarios red.
+- Voice service: 9 tests, ruff and mypy clean.
+- Frontend: eslint, tsc, prettier and `next build` pass. Playwright: 39 tests, 38 passed in the full run, plus the one failing spec (a stale M3-era assertion in `navigation.spec.ts`) fixed and rerun with all 6 passing. `evaluations.spec.ts` runs the real worker against the published sandbox clinic, covering the empty state, unavailable modes, a category run with inspection and rerun, cancellation, the Activity tab and mobile overflow.
+- Migration `0005_evaluations` is additive and reversible (checked by `test_migrations.py`); 0001-0004 are untouched.
+
+### Not verified
+- Mode B and Mode C were never run. Real LiveKit, STT, TTS, barge-in and live booking remain open (`verification-debt.md`, VD-01 to VD-08).
+- GitHub Actions and Docker Compose have never run.
+- Emergency guidance in the shared agent instructions is a documented gap (VD-12), not changed here.
+
+### Investigations
+- **M2 concurrency 503:** SQLSTATE logging (exception class and code only, no data) was added to the scheduling infrastructure-failure path. The cause is still unproven; no repeated-run reproduction was done in this milestone (VD-09, Partial).
+- **Backend suite duration:** the pre-M4 suite was about 9 minutes. The M4 tests dominate the increase because every scenario clones a database from a per-run template that must be migrated first (full suite about 130 s, single scenario about 100 s under load). No refactor was made; running the suite alongside Playwright or mypy roughly doubles it.
+- A stopped Playwright run left one scratch evaluation database; it was removed by name pattern. Do not run two pytest sessions against the same test database at once.
+
+### Limitations
+Single operator, no authentication. Passing Mode A says nothing about model behavior, speech, clinical safety or compliance. Not HIPAA compliant.
+
 ## M3 - Real-time voice agent (2026-11-24): PARTIALLY COMPLETE, live voice verification blocked
 
 No LiveKit or speech-provider credentials were available, and spending the ambient OpenAI key was not approved, so a real call was never made. Everything around the audio path is built and tested.

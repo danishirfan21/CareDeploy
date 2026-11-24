@@ -14,8 +14,8 @@ and tests from M1 and M2 are unchanged.
 | Setup wizard | `/clinics/new`, `/clinics/[id]/configure` | Five steps, one visible at a time. Separate route, not inline under the list. |
 | Voice playground | `/playground` | Clinic selector, agent version, Start call, connection status, mic control, End call, live transcript, inline tool activity, verification and confirmation states, after-call outcome. Driven by `useCall` (M3). |
 | Call details | `/activity/calls/[id]` | Outcome, duration, transcript, tool activity and operation ids of a finished call. |
-| Evaluations | `/evaluations` | Clinic selector, disabled Run evaluation, honest empty state. |
-| Activity | `/activity` | Calls / Evaluations tabs, both empty until M3/M4 create records. |
+| Evaluations | `/evaluations` | Clinic, published version, mode and scenario selectors; Run evaluation; progress with cancel; results grouped by category with real counts; failure inspection; readiness message. Empty state: "Run your first evaluation to check this agent's scheduling behavior." |
+| Activity | `/activity` | Calls / Evaluations tabs. The Evaluations tab lists persisted runs for a chosen clinic; the Calls tab has no call list yet. |
 
 `/dev/ui` previews the typed components with clearly labelled sample data (development only, not
 linked). `/dev/scheduling` is unchanged.
@@ -30,7 +30,7 @@ linked). `/dev/scheduling` is unchanged.
   validation are untouched).
 - `components/voice/`: ConversationTranscript, ConversationMessage, ToolActivity, ToolChain,
   CallOutcome, CallControls and their data types (`types.ts`).
-- `components/evaluations/`: EvaluationSummary, EvaluationGroup, EvaluationResult and types.
+- `components/evaluations/evaluation-parts.tsx`: ReadinessPanel, RunProgress, CategoryGroupCard, ResultInspector, RunHistory, status pills. Data shapes come from `lib/api/types.ts`. No percentage or combined score is rendered.
 - `components/activity/`: ActivityList, ActivityDetail.
 
 The voice, evaluation and activity components take typed props and contain no data fetching or
@@ -84,6 +84,6 @@ visual comparison, not a pixel diff, so exact spacing and type metrics differ in
   transport (`NEXT_PUBLIC_VOICE_TEST_TRANSPORT=1`). Technical details stay collapsed; no raw JSON or
   analytics in the main view. A call list in Activity is not built (call details are reached from the
   Playground outcome).
-- M4: feed `EvaluationSummary` / `EvaluationGroup` and enable Run evaluation.
+- M4 (done, see `evaluations.md`): the Evaluations page polls a run once a second while it is queued or running, shows persisted results, and reruns one scenario as a linked run. Mode B and C appear as "Not run" with the reason.
 - M5: populate `ActivityList` / `ActivityDetail` from stored calls and evaluation runs.
 - Virtual-keyboard behaviour was not tested on a real device.

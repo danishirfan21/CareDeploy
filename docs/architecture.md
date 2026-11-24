@@ -30,3 +30,9 @@ Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheCompone
 - `services/voice-agent`: provider boundary, state machines (transport, conversation, operation), tool layer over the M2 HTTP API with idempotent reconciliation, and the only LiveKit-aware module (`worker.py`).
 - `apps/web/src/lib/voice`: `VoiceTransport` (LiveKit adapter and a controlled test adapter), call hook, event folding.
 - Details: `voice-agent.md`, `voice-session-lifecycle.md`, `voice-tools.md`.
+
+## M4 evaluation engine
+- `app/evals/`: strict scenario schema and loader, isolated fixtures (database per scenario cloned from a per-run template), a driver that runs scenarios through the voice-agent `Toolbox`, `SchedulingClient` and the in-process M2 API, a deterministic assertion engine, the runner, and analysis (readiness, regression comparison).
+- `app/api/evals.py` and `app/schemas/evals.py`: typed routes under `/api/clinics/{id}/evaluations/...`; runs execute in a separate worker process (`python -m app.evals.worker`).
+- Migration `0005_evaluations`: `eval_runs`, `eval_scenario_results`, `eval_events`, immutable once a run is terminal.
+- Scenarios are JSON files in `evals/scenarios/`. Details: `evaluations.md`, `evaluation-scenarios.md`, `deployment-readiness.md`, `verification-debt.md`.
