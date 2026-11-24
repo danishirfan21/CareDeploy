@@ -1,0 +1,24 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=("../../.env", ".env"), extra="ignore")
+
+    database_url: str = "postgresql+asyncpg://caredeploy:caredeploy@localhost:5432/caredeploy"
+    cors_origins: str = "http://localhost:3100"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def sync_database_url(self) -> str:
+        """Driver URL for Alembic (sync psycopg)."""
+        return self.database_url.replace("+asyncpg", "+psycopg")
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
