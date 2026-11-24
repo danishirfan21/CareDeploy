@@ -35,7 +35,9 @@ test("home actions and sidebar navigation", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Run evaluations" }).click();
   await expect(page).toHaveURL(/\/evaluations$/);
-  await expect(page.getByTestId("unavailable")).toContainText("M4");
+  await expect(
+    page.getByRole("heading", { name: "Evaluations", level: 1 }),
+  ).toBeVisible();
 });
 
 test("sidebar collapses", async ({ page }) => {
@@ -66,16 +68,17 @@ test("playground shows no call, transcript or result before a call starts", asyn
   );
 });
 
-test("evaluations shows no fabricated results", async ({ page }) => {
+test("evaluations starts at a clinic choice with no invented results", async ({
+  page,
+}) => {
   await page.goto("/evaluations");
   await expect(
     page.getByRole("button", { name: "Run evaluation" }),
   ).toBeDisabled();
-  await expect(page.getByTestId("unavailable")).toContainText(
-    "No evaluation runs",
-  );
-  await expect(page.getByTestId("evaluation-summary")).toHaveCount(0);
+  await expect(page.getByTestId("select-clinic")).toBeVisible();
+  await expect(page.getByTestId("run-summary")).toHaveCount(0);
   await expect(page.getByText(/scenarios passed/)).toHaveCount(0);
+  await expect(page.getByText(/\d+%/)).toHaveCount(0);
 });
 
 test("activity tabs are empty without records", async ({ page }) => {
@@ -87,7 +90,7 @@ test("activity tabs are empty without records", async ({ page }) => {
   await expect(page.getByTestId("unavailable")).toContainText("No calls yet");
   await page.getByRole("tab", { name: /Evaluations/ }).click();
   await expect(page.getByTestId("unavailable")).toContainText(
-    "No evaluation runs yet",
+    "Choose a clinic",
   );
   await expect(page.getByTestId("activity-detail")).toHaveCount(0);
 });
@@ -102,5 +105,4 @@ test("component preview renders sample data (development page)", async ({
   );
   const failing = page.getByText("Sample failing scenario");
   await expect(failing).toBeVisible();
-  await expect(page.getByText("Sample expected behaviour.")).toBeVisible();
 });

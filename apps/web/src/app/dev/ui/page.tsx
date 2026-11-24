@@ -7,8 +7,8 @@ import {
   type ActivityItem,
 } from "@/components/activity/activity-parts";
 import {
-  EvaluationGroup,
-  EvaluationSummary,
+  CategoryGroupCard,
+  ResultPill,
 } from "@/components/evaluations/evaluation-parts";
 import { PageHeader } from "@/components/ui";
 import { Notice } from "@/components/ui";
@@ -74,24 +74,40 @@ export default function UiPreview() {
         <CallControls phase="active" muted={false} />
       </section>
       <section aria-label="Evaluation preview" className="space-y-3">
-        <EvaluationSummary summary={{ passed: 1, total: 2 }} />
-        <EvaluationGroup
+        <CategoryGroupCard
           group={{
-            id: "g1",
-            name: "Sample group",
+            category: "sample",
+            label: "Sample group",
+            counts: { total: 2, passed: 1, failed: 1 },
             results: [
-              { id: "r1", name: "Sample passing scenario", status: "pass" },
               {
-                id: "r2",
+                scenario_id: "SAMPLE-1",
+                scenario_version: 1,
+                name: "Sample passing scenario",
+                category: "sample",
+                severity: "high",
+                status: "passed",
+                failure: null,
+                duration_ms: 100,
+                not_evaluated: [],
+              },
+              {
+                scenario_id: "SAMPLE-2",
+                scenario_version: 1,
                 name: "Sample failing scenario",
-                status: "fail",
-                critical: true,
-                expected: "Sample expected behaviour.",
-                observed: "Sample observed behaviour.",
+                category: "sample",
+                severity: "critical",
+                status: "failed",
+                failure: "Sample observed behaviour.",
+                duration_ms: 100,
+                not_evaluated: [],
               },
             ],
           }}
+          selectedId={null}
+          onSelect={() => undefined}
         />
+        <ResultPill status="not_run" />
       </section>
       <section aria-label="Activity preview" className="space-y-3">
         <ActivityList

@@ -7,6 +7,13 @@ import type {
   ConfigVersionSummary,
   CallEvent,
   DbHealthResponse,
+  EvalCatalog,
+  EvalMode,
+  EvalReadiness,
+  EvalResultDetail,
+  EvalRunDetail,
+  EvalRunSummary,
+  EvalSelection,
   HealthResponse,
   ValidationResult,
   VoiceSession,
@@ -36,6 +43,13 @@ function describe(status: number, body: unknown): string {
         [d.loc?.slice(1).join("."), d.msg].filter(Boolean).join(": "),
       )
       .join("; ");
+  }
+  if (
+    detail &&
+    typeof detail === "object" &&
+    typeof (detail as { message?: unknown }).message === "string"
+  ) {
+    return (detail as { message: string }).message;
   }
   return `Request failed (${status})`;
 }
@@ -104,5 +118,44 @@ export const api = {
     apiFetch<VoiceSession>(
       `/voice/sessions/${id}/end`,
       json("POST", { reason }),
+    ),
+
+  // Evaluations (M4)
+  evalCatalog: () => apiFetch<EvalCatalog>("/evaluations/scenarios"),
+  listEvalRuns: (clinicId: string, limit = 25) =>
+    apiFetch<EvalRunSummary[]>(
+      `/clinics/${clinicId}/evaluations/runs?limit=${limit}`,
+    ),
+  startEvalRun: (
+    clinicId: string,
+    body: {
+      mode: EvalMode;
+      config_version?: number;
+      selection: EvalSelection;
+    },
+  ) =>
+    apiFetch<EvalRunSummary>(
+      `/clinics/${clinicId}/evaluations/runs`,
+      json("POST", body),
+    ),
+  getEvalRun: (clinicId: string, runId: string) =>
+    apiFetch<EvalRunDetail>(`/clinics/${clinicId}/evaluations/runs/${runId}`),
+  getEvalResult: (clinicId: string, runId: string, scenarioId: string) =>
+    apiFetch<EvalResultDetail>(
+      `/clinics/${clinicId}/evaluations/runs/${runId}/results/${scenarioId}`,
+    ),
+  cancelEvalRun: (clinicId: string, runId: string) =>
+    apiFetch<EvalRunSummary>(
+      `/clinics/${clinicId}/evaluations/runs/${runId}/cancel`,
+      json("POST"),
+    ),
+  rerunEvalScenario: (clinicId: string, runId: string, scenarioId: string) =>
+    apiFetch<EvalRunSummary>(
+      `/clinics/${clinicId}/evaluations/runs/${runId}/rerun`,
+      json("POST", { scenario_id: scenarioId }),
+    ),
+  evalReadiness: (clinicId: string, version?: number) =>
+    apiFetch<EvalReadiness>(
+      `/clinics/${clinicId}/evaluations/readiness${version ? `?config_version=${version}` : ""}`,
     ),
 };
