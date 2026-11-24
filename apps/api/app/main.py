@@ -46,7 +46,7 @@ def create_app() -> FastAPI:
     @app.exception_handler(DBAPIError)
     async def _db_error(request: Request, exc: DBAPIError) -> JSONResponse:
         # Never leak database details to clients.
-        logger.error("database error path=%s type=%s detail=%s", request.url.path, type(exc.orig).__name__, str(exc.orig)[:300])
+        logger.error("database error path=%s type=%s", request.url.path, type(exc.orig).__name__)
         return _error_response(
             DependencyUnavailable(
                 "A dependency is temporarily unavailable.", headers={"Retry-After": "1"}
