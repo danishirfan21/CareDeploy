@@ -25,7 +25,10 @@ export function ClinicDetail({ id }: { id: string }) {
   return (
     <>
       <p className="mb-4 text-sm">
-        <Link href="/clinics" className="text-muted hover:text-foreground">
+        <Link
+          href="/clinics"
+          className="inline-flex min-h-11 items-center text-muted hover:text-foreground"
+        >
           ← Clinics
         </Link>
       </p>
@@ -56,12 +59,12 @@ export function ClinicDetail({ id }: { id: string }) {
         )}
       </div>
 
-      <h2 className="mb-3 text-lg font-medium">Published versions</h2>
+      <h2 className="mb-3 text-xl font-medium">Published versions</h2>
       {versions.length === 0 ? (
         <p className="mb-2 text-sm text-muted">None yet.</p>
       ) : (
         <ul
-          className="mb-2 divide-y divide-line rounded-xl border border-line"
+          className="mb-2 divide-y divide-line rounded-2xl border border-line bg-surface"
           aria-label="Published versions"
         >
           {versions.map((v) => (
@@ -80,7 +83,7 @@ export function ClinicDetail({ id }: { id: string }) {
         available yet.
       </p>
 
-      <h2 className="mb-3 text-lg font-medium">Current draft</h2>
+      <h2 className="mb-3 text-xl font-medium">Current draft</h2>
       <ConfigSummary config={cfg.config} />
     </>
   );

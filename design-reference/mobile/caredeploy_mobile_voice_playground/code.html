@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-error-container":"#93000a","error":"#ba1a1a","on-tertiary-fixed":"#370e00","tertiary":"#7f4025","on-tertiary":"#ffffff","on-secondary-container":"#63646c","inverse-surface":"#313030","on-secondary":"#ffffff","secondary-fixed":"#e3e1ec","inverse-primary":"#80d5cb","surface-container-high":"#eae7e7","on-secondary-fixed-variant":"#46464e","surface-bright":"#fcf9f8","primary-fixed":"#9cf2e8","surface-container":"#f0eded","surface-container-low":"#f6f3f2","on-error":"#ffffff","outline-variant":"#bdc9c6","surface-variant":"#e5e2e1","tertiary-fixed-dim":"#ffb598","tertiary-fixed":"#ffdbce","surface":"#fcf9f8","on-primary":"#ffffff","primary-fixed-dim":"#80d5cb","surface-dim":"#dcd9d9","on-surface":"#1c1b1b","on-primary-fixed-variant":"#00504a","on-primary-fixed":"#00201d","secondary-container":"#e3e1ec","tertiary-container":"#9c573a","on-secondary-fixed":"#1a1b22","secondary":"#5d5e66","on-tertiary-fixed-variant":"#72361b","on-primary-container":"#a3faef","on-background":"#1c1b1b","surface-container-lowest":"#ffffff","background":"#fcf9f8","surface-tint":"#006a63","on-tertiary-container":"#ffe5db","secondary-fixed-dim":"#c6c5cf","inverse-on-surface":"#f3f0ef","primary":"#005c55","on-surface-variant":"#3e4947","outline":"#6e7977","primary-container":"#0f766e","error-container":"#ffdad6","surface-container-highest":"#e5e2e1"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gutter":"1rem","space-md":"0.75rem","space-xl":"2rem","gutter-desktop":"1.5rem","margin-tablet":"1.5rem","space-xs":"0.25rem","space-2xl":"3rem","space-lg":"1.25rem","space-sm":"0.5rem","margin":"1rem","margin-desktop":"2rem"},"fontFamily":{"body-md":["Geist"],"headline-lg":["Geist"],"label-mono":["JetBrains Mono"],"body-sm":["Geist"],"headline-xl-mobile":["Geist"],"body-lg":["Geist"],"headline-sm":["Geist"],"code-md":["JetBrains Mono"],"code-sm":["JetBrains Mono"],"headline-xl":["Geist"],"headline-lg-mobile":["Geist"],"label-md":["Geist"]},"fontSize":{"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-mono":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"500"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"500"}],"code-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"400"}],"code-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"600"}],"headline-lg-mobile":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-margin flex items-center justify-between"><button aria-label="Open menu" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" type="button"><span class="material-symbols-outlined">menu</span></button><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">CareDeploy</span><div class="w-11 h-11 flex items-center justify-end"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-14 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full gap-space-lg pb-space-xl">
+<!-- Header & Clinic Selector -->
+<section class="flex flex-col gap-space-sm pt-space-sm">
+<div class="flex flex-col gap-space-xs">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Voice Playground</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Talk to your agent before it goes live.</p>
+</div>
+<div class="relative flex items-center pt-space-xs">
+<button class="inline-flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-lowest shadow-sm text-on-surface hover:bg-surface-container-low transition-colors" id="clinic-selector-btn" type="button">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-md text-label-md text-on-surface" id="clinic-name">Northstar Family Medicine</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+<div class="hidden absolute left-0 top-11 z-20 w-64 rounded-xl bg-surface-container-lowest shadow-lg p-space-xs flex flex-col gap-space-xs" id="clinic-dropdown">
+<button class="clinic-option flex items-center justify-between w-full px-space-md py-space-sm rounded-lg bg-surface-container-low text-left font-label-md text-label-md text-on-surface" data-clinic="Northstar Family Medicine" type="button">
+<span>Northstar Family Medicine</span>
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+</button>
+<button class="clinic-option flex items-center justify-between w-full px-space-md py-space-sm rounded-lg hover:bg-surface-container-low text-left font-label-md text-label-md text-on-surface-variant" data-clinic="Cascadia Pediatrics" type="button">
+<span>Cascadia Pediatrics</span>
+</button>
+<button class="clinic-option flex items-center justify-between w-full px-space-md py-space-sm rounded-lg hover:bg-surface-container-low text-left font-label-md text-label-md text-on-surface-variant" data-clinic="Harborview Urgent Care" type="button">
+<span>Harborview Urgent Care</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Conversation Transcript -->
+<section class="flex flex-col gap-space-lg">
+<!-- Agent Turn 1 -->
+<div class="flex flex-col gap-space-xs pr-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Northstar Agent</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface pl-space-lg">
+        Thank you for calling Northstar Family Medicine. How can I help?
+      </p>
+</div>
+<!-- Caller Turn 1 -->
+<div class="flex justify-end pl-space-xl">
+<div class="bg-surface-container-lowest shadow-sm rounded-2xl px-space-md py-space-sm max-w-[85%]">
+<p class="font-body-md text-body-md text-on-surface">
+          I'd like to move my appointment to Monday.
+        </p>
+</div>
+</div>
+<!-- Inline Tool Activity Pill -->
+<div class="flex flex-col items-start gap-space-xs pl-space-lg">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-low hover:bg-surface-container transition-colors text-left" id="tool-details-btn" type="button">
+<span class="font-label-mono text-label-mono text-primary">✓</span>
+<span class="font-label-md text-label-md text-on-surface-variant">
+          Availability checked: Mon Oct 28, 10:30 AM &amp; 2:15 PM open · <span class="text-primary">View details</span>
+</span>
+</button>
+<div class="hidden w-full rounded-xl bg-surface-container-low p-space-md flex flex-col gap-space-xs" id="tool-details-panel">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant">ehr.check_availability</span>
+<span class="font-label-mono text-label-mono text-primary">142ms</span>
+</div>
+<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto whitespace-pre-wrap">provider: "Dr. Elena Chen"
+date: "2024-10-28"
+slots: ["10:30 AM", "02:15 PM"]</pre>
+</div>
+</div>
+<!-- Agent Turn 2 -->
+<div class="flex flex-col gap-space-xs pr-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Northstar Agent</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface pl-space-lg">
+        Dr. Chen has an opening this Monday, October 28 at 10:30 AM or 2:15 PM. Do either of those work for you?
+      </p>
+</div>
+<!-- Caller Turn 2 -->
+<div class="flex justify-end pl-space-xl">
+<div class="bg-surface-container-lowest shadow-sm rounded-2xl px-space-md py-space-sm max-w-[85%]">
+<p class="font-body-md text-body-md text-on-surface">
+          10:30 AM works great.
+        </p>
+</div>
+</div>
+<!-- Inline Rescheduled Pill -->
+<div class="flex items-start pl-space-lg">
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-low">
+<span class="font-label-mono text-label-mono text-primary">✓</span>
+<span class="font-label-md text-label-md text-on-surface-variant">
+          Rescheduled to Mon, Oct 28 at 10:30 AM
+        </span>
+</div>
+</div>
+<!-- Completion Summary -->
+<div class="pt-space-xs">
+<button class="w-full flex items-center justify-between px-space-md py-space-sm rounded-xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low transition-colors" id="call-summary-btn" type="button">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[15px] text-primary">check_circle</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface truncate">
+            Appointment rescheduled successfully
+          </span>
+</div>
+<span class="font-label-md text-label-md text-primary shrink-0 pl-space-sm">
+          View call details
+        </span>
+</button>
+</div>
+</section>
+<!-- Floating Bottom Call Bar -->
+<div class="sticky bottom-20 z-30 pt-space-sm">
+<div class="w-full rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md px-space-md py-space-sm flex items-center justify-between gap-space-sm">
+<!-- Call Status & Timer -->
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse shrink-0" id="call-status-dot"></span>
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-on-surface" id="call-status-label">In Call <span id="call-timer">01:14</span></span>
+</div>
+</div>
+<!-- Controls -->
+<div class="flex items-center gap-space-sm">
+<button aria-label="Mute microphone" class="w-10 h-10 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container flex items-center justify-center transition-colors" id="mute-btn" type="button">
+<span class="material-symbols-outlined text-[20px]" id="mute-icon">mic_off</span>
+</button>
+<button aria-label="Speak" class="w-12 h-12 rounded-full bg-primary text-on-primary shadow-md hover:bg-primary-container flex items-center justify-center transition-transform active:scale-95" id="mic-btn" type="button">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+<button class="px-space-md h-10 rounded-full bg-error-container text-on-error-container font-label-md text-label-md flex items-center gap-space-xs hover:opacity-90 transition-opacity" id="end-call-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">call_end</span>
+<span id="end-call-text">End Call</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function () {
+    // Clinic selector dropdown
+    const clinicBtn = document.getElementById('clinic-selector-btn');
+    const clinicDropdown = document.getElementById('clinic-dropdown');
+    const clinicName = document.getElementById('clinic-name');
+    const clinicOptions = document.querySelectorAll('.clinic-option');
+
+    if (clinicBtn && clinicDropdown) {
+      clinicBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        clinicDropdown.classList.toggle('hidden');
+      });
+
+      clinicOptions.forEach(function (option) {
+        option.addEventListener('click', function () {
+          const selected = option.getAttribute('data-clinic');
+          if (selected && clinicName) {
+            clinicName.textContent = selected;
+          }
+          clinicDropdown.classList.add('hidden');
+        });
+      });
+
+      document.addEventListener('click', function () {
+        clinicDropdown.classList.add('hidden');
+      });
+    }
+
+    // Tool details toggle
+    const toolBtn = document.getElementById('tool-details-btn');
+    const toolPanel = document.getElementById('tool-details-panel');
+    if (toolBtn && toolPanel) {
+      toolBtn.addEventListener('click', function () {
+        toolPanel.classList.toggle('hidden');
+      });
+    }
+
+    // Live call timer
+    let seconds = 74;
+    let callActive = true;
+    const timerEl = document.getElementById('call-timer');
+    const statusDot = document.getElementById('call-status-dot');
+    const statusLabel = document.getElementById('call-status-label');
+
+    setInterval(function () {
+      if (!callActive || !timerEl) return;
+      seconds += 1;
+      const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      timerEl.textContent = mins + ':' + secs;
+    }, 1000);
+
+    // Mute toggle
+    const muteBtn = document.getElementById('mute-btn');
+    const muteIcon = document.getElementById('mute-icon');
+    let isMuted = false;
+
+    if (muteBtn && muteIcon) {
+      muteBtn.addEventListener('click', function () {
+        isMuted = !isMuted;
+        if (isMuted) {
+          muteBtn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+          muteBtn.classList.add('bg-inverse-surface', 'text-inverse-on-surface');
+          muteIcon.textContent = 'volume_off';
+        } else {
+          muteBtn.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+          muteBtn.classList.remove('bg-inverse-surface', 'text-inverse-on-surface');
+          muteIcon.textContent = 'mic_off';
+        }
+      });
+    }
+
+    // End call toggle
+    const endCallBtn = document.getElementById('end-call-btn');
+    const endCallText = document.getElementById('end-call-text');
+
+    if (endCallBtn && endCallText && statusLabel && statusDot) {
+      endCallBtn.addEventListener('click', function () {
+        callActive = !callActive;
+        if (!callActive) {
+          statusDot.classList.remove('bg-primary', 'animate-pulse');
+          statusDot.classList.add('bg-outline');
+          statusLabel.textContent = 'Call Ended';
+          endCallText.textContent = 'Restart';
+          endCallBtn.classList.remove('bg-error-container', 'text-on-error-container');
+          endCallBtn.classList.add('bg-surface-container-low', 'text-on-surface');
+        } else {
+          seconds = 0;
+          statusDot.classList.add('bg-primary', 'animate-pulse');
+          statusDot.classList.remove('bg-outline');
+          statusLabel.innerHTML = 'In Call <span id="call-timer">00:00</span>';
+          endCallText.textContent = 'End Call';
+          endCallBtn.classList.add('bg-error-container', 'text-on-error-container');
+          endCallBtn.classList.remove('bg-surface-container-low', 'text-on-surface');
+        }
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/80 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary"><div class="flex justify-around items-center h-16 px-margin"><a class="flex flex-col items-center justify-center gap-space-xs min-w-[64px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="clinics" href="#"><span class="material-symbols-outlined text-[22px]">domain</span><span class="font-label-md text-label-md">Clinics</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-space-xs min-w-[64px] h-12 transition-colors text-primary" data-path="playground" href="#"><span class="material-symbols-outlined text-[22px]">terminal</span><span class="font-label-md text-label-md">Playground</span></a><a class="flex flex-col items-center justify-center gap-space-xs min-w-[64px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="activity" href="#"><span class="material-symbols-outlined text-[22px]">timeline</span><span class="font-label-md text-label-md">Activity</span></a></div></nav></body></html>

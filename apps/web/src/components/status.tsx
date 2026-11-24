@@ -6,7 +6,7 @@ import { api } from "@/lib/api/client";
 type State = "checking" | "ok" | "error";
 
 const dot: Record<State, string> = {
-  checking: "bg-gray-300",
+  checking: "bg-line",
   ok: "bg-accent",
   error: "bg-red-500",
 };

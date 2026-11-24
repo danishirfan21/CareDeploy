@@ -1,5 +1,23 @@
 # Implementation status
 
+## M2.5 - Stitch UI integration (2026-11-24)
+
+Frontend only; backend, models and migrations unchanged. See `ui-architecture.md`.
+
+### Verified (actually executed)
+- Backend: ruff, ruff format, strict mypy clean; 97 pytest passed (unchanged).
+- Frontend: eslint, tsc, prettier check, `next build` pass.
+- Playwright: 26 passed, 0 skipped (the 14 earlier tests, updated home/navigation assertions, new tests for
+  playground/evaluations/activity unavailable states, component preview, tablet and mobile overflow and
+  navigation, mobile wizard, and a screenshot capture spec). The e2e run uses real frontend, API and PostgreSQL.
+- Screens rendered in Chromium at 1440, 768 and 390 px and compared by eye with the Stitch `screen.png` files.
+
+### Not verified / limitations
+- Visual fidelity is approximate (no pixel diff). Wizard uses labelled inputs, not Stitch chip selectors,
+  and lives on its own route. Stitch-only content (fake labels, task composer, sample data) is intentionally absent.
+- Mobile virtual keyboard and real touch devices were not tested. Chromium only.
+- GitHub Actions and Docker Compose still never run.
+
 ## M2 - Scheduling engine and reliability (2026-11-24)
 
 ### Verified (actually executed)
@@ -30,7 +48,6 @@
 
 ### Not verified / limitations
 - **Docker Compose** still never run (Docker not installed). **GitHub Actions** workflow updated for M1 but never run.
-- Stitch exports are absent, so the UI makes no claim of visual fidelity to any design.
 - "Draft" is the live editable rows; publishing snapshots them into an immutable `config_versions` row. There is no separate draft table or per-field history.
 - (Superseded in M2: appointment types now have stable ids; operating-hour rows are still replaced on save.)
 - Publishing does **not** create a live voice agent; the UI says so. Playground (M3) and evaluations (M4) are explicitly unavailable pages.

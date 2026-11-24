@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"inverse-on-surface":"#f3f0ef","background":"#fcf9f8","on-secondary-fixed":"#1a1b22","surface-container":"#f0eded","surface-tint":"#006a63","surface-variant":"#e5e2e1","on-error":"#ffffff","tertiary-fixed":"#ffdbce","primary-fixed-dim":"#80d5cb","surface-container-high":"#eae7e7","inverse-primary":"#80d5cb","on-primary-fixed-variant":"#00504a","on-error-container":"#93000a","on-tertiary":"#ffffff","tertiary-fixed-dim":"#ffb598","secondary-fixed":"#e3e1ec","on-tertiary-fixed-variant":"#72361b","on-secondary-fixed-variant":"#46464e","surface-container-lowest":"#ffffff","primary-container":"#0f766e","on-tertiary-container":"#ffe5db","tertiary-container":"#9c573a","on-tertiary-fixed":"#370e00","outline-variant":"#bdc9c6","surface":"#fcf9f8","surface-container-low":"#f6f3f2","outline":"#6e7977","error":"#ba1a1a","on-secondary-container":"#63646c","on-surface-variant":"#3e4947","surface-bright":"#fcf9f8","on-primary-fixed":"#00201d","on-surface":"#1c1b1b","on-secondary":"#ffffff","secondary":"#5d5e66","tertiary":"#7f4025","primary-fixed":"#9cf2e8","on-primary-container":"#a3faef","surface-container-highest":"#e5e2e1","secondary-container":"#e3e1ec","primary":"#005c55","surface-dim":"#dcd9d9","on-background":"#1c1b1b","on-primary":"#ffffff","error-container":"#ffdad6","secondary-fixed-dim":"#c6c5cf","inverse-surface":"#313030"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2rem","gutter":"1rem","space-2xl":"3rem","space-md":"0.75rem","space-lg":"1.25rem","space-xs":"0.25rem","margin-tablet":"1.5rem","gutter-desktop":"1.5rem","margin":"1rem","space-sm":"0.5rem","margin-desktop":"2rem"},"fontFamily":{"body-md":["Geist"],"headline-lg":["Geist"],"headline-sm":["Geist"],"label-mono":["JetBrains Mono"],"headline-xl":["Geist"],"body-sm":["Geist"],"label-md":["Geist"],"headline-xl-mobile":["Geist"],"code-sm":["JetBrains Mono"],"body-lg":["Geist"],"headline-lg-mobile":["Geist"],"code-md":["JetBrains Mono"]},"fontSize":{"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"500"}],"label-mono":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"500"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"code-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"headline-lg-mobile":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-margin-tablet flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">vital_signs</span></div><span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">CareDeploy</span></div><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-low"><span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span><span class="font-label-mono text-label-mono text-on-surface-variant">prod-us-east</span></div></div><div class="flex items-center gap-space-md"><nav class="flex items-center gap-space-xs bg-surface-container-low p-1 rounded-full" data-active-classes="bg-surface-container-highest text-on-surface font-semibold"><a aria-current="page" class="px-space-md py-1.5 rounded-full transition-colors bg-surface-container-highest text-on-surface font-semibold" data-path="clinics" href="#">Clinics</a><a class="px-space-md py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="playground" href="#">Playground</a><a class="px-space-md py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="activity" href="#">Activity</a></nav><button class="flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors"><span class="material-symbols-outlined text-[16px]">add</span><span>New Task</span></button><button class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">settings</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="max-w-3xl mx-auto px-margin-tablet py-space-xl"><div class="flex flex-col w-full pb-space-2xl">
+<!-- Evaluations Workspace Top Anchor -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg mb-space-xl">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-mono text-label-mono uppercase tracking-wider">
+<span>CI/CD Gate</span>
+<span>/</span>
+<span class="text-primary font-semibold">Staging-Canary-v2.14</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight font-semibold">Evaluations</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Check your agent before deployment.</p>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all active:scale-[0.98] shadow-sm" id="run-evals-btn" onclick="triggerRunAll()">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span class="font-semibold tracking-wide">Run Evaluations</span>
+</button>
+</div>
+</section>
+<!-- Reliability Status Banner (Card-based elevation) -->
+<section class="w-full bg-surface-container-lowest rounded-xl p-space-lg mb-space-xl shadow-sm relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex flex-col gap-space-md relative z-10">
+<!-- Status Meta Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-mono text-label-mono font-medium">
+<span class="material-symbols-outlined text-[15px] text-tertiary">warning</span>
+<span>Two scenarios need attention</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-mono text-label-mono">
+<span class="inline-block w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span>Suite Execution: 4m 12s</span>
+</div>
+</div>
+<!-- Main Metric Grid -->
+<div class="flex items-center justify-between gap-space-lg pt-space-xs">
+<div class="flex flex-col gap-space-xs max-w-lg">
+<div class="flex items-baseline gap-space-sm">
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">18 of 20 scenarios passed</h2>
+</div>
+<p class="font-body-md text-body-md text-error flex items-center gap-space-xs font-medium">
+<span class="material-symbols-outlined text-[16px]">block</span>
+<span>Deployment blocked until critical scenarios pass.</span>
+</p>
+</div>
+<!-- Pill/Radial Score Display -->
+<div class="flex items-center gap-space-md bg-surface-container-low px-space-md py-space-sm rounded-xl">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-12 h-12 -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="90, 100" stroke-linecap="round" stroke-width="3.2"></path>
+</svg>
+<span class="absolute font-label-mono text-label-mono font-semibold text-on-surface">90%</span>
+</div>
+<div class="hidden sm:flex flex-col text-left">
+<span class="font-label-mono text-label-mono uppercase text-on-surface-variant">Gate Status</span>
+<span class="font-label-md text-label-md text-tertiary font-semibold">HOLD_FAIL</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Scenario Suites Accordion List -->
+<section class="flex flex-col gap-space-sm w-full">
+<div class="flex items-center justify-between px-space-xs pb-space-xs font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider">
+<span>Evaluation Categories (5)</span>
+<span>Result Spectrum</span>
+</div>
+<!-- 1. Appointment Workflows (Collapsed, Passed) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full flex items-center justify-between p-space-md hover:bg-surface-container-low text-left transition-colors" onclick="toggleAccordion('cat-1')">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">event_available</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Appointment workflows</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Intake triage, re-scheduling, provider routing</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container font-label-mono text-label-mono text-primary font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>5 of 5 passed</span>
+</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform" id="cat-1-icon">expand_more</span>
+</div>
+</button>
+<div class="hidden px-space-md pb-space-md pt-space-xs flex-col gap-space-xs bg-surface-container-lowest" id="cat-1-body">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">New patient registration intake sequence</span>
+<span class="font-label-mono text-label-mono text-primary">PASS (280ms)</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">Urgent care triage red-flag escalation</span>
+<span class="font-label-mono text-label-mono text-primary">PASS (190ms)</span>
+</div>
+</div>
+</div>
+<!-- 2. Conversation Handling (Collapsed, Passed) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full flex items-center justify-between p-space-md hover:bg-surface-container-low text-left transition-colors" onclick="toggleAccordion('cat-2')">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Conversation handling</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Slot filling, barge-in interruptions, context persistence</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container font-label-mono text-label-mono text-primary font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>4 of 4 passed</span>
+</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform" id="cat-2-icon">expand_more</span>
+</div>
+</button>
+<div class="hidden px-space-md pb-space-md pt-space-xs flex-col gap-space-xs bg-surface-container-lowest" id="cat-2-body">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">Multi-turn slot correction without hallucination</span>
+<span class="font-label-mono text-label-mono text-primary">PASS (310ms)</span>
+</div>
+</div>
+</div>
+<!-- 3. Scheduling Integrity (EXPANDED by default, Contains Failed) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full flex items-center justify-between p-space-md bg-surface-container-low/70 text-left" onclick="toggleAccordion('cat-3')">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">Scheduling integrity</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-mono text-label-mono uppercase font-bold">1 Failure</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Slot locks, concurrency, distributed calendar hooks</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-error-container/40 font-label-mono text-label-mono text-error font-medium">
+<span>3 of 4 passed, 1 failed</span>
+</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform rotate-180" id="cat-3-icon">expand_more</span>
+</div>
+</button>
+<!-- Category Detailed Items Body -->
+<div class="flex flex-col gap-space-sm p-space-md bg-surface-container-lowest" id="cat-3-body">
+<!-- Passed Rows -->
+<div class="flex items-center justify-between px-space-md py-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span class="font-body-md text-body-md text-on-surface">Double-booking prevention</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm text-on-surface-variant">deterministic-lock</span>
+<span class="font-label-mono text-label-mono font-semibold text-primary px-space-xs py-0.5 rounded bg-surface">PASS</span>
+</div>
+</div>
+<div class="flex items-center justify-between px-space-md py-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span class="font-body-md text-body-md text-on-surface">Timezone offset alignment</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm text-on-surface-variant">PST vs UTC+4</span>
+<span class="font-label-mono text-label-mono font-semibold text-primary px-space-xs py-0.5 rounded bg-surface">PASS</span>
+</div>
+</div>
+<div class="flex items-center justify-between px-space-md py-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span class="font-body-md text-body-md text-on-surface">Provider availability sync</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm text-on-surface-variant">epic-mychart-feed</span>
+<span class="font-label-mono text-label-mono font-semibold text-primary px-space-xs py-0.5 rounded bg-surface">PASS</span>
+</div>
+</div>
+<!-- FAILED SCENARIO CARD (High contrast, intentional visual weight) -->
+<div class="mt-space-xs rounded-xl bg-surface-container-low p-space-md flex flex-col gap-space-md">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-error flex items-center justify-center text-on-error">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Scheduling API Timeout</h3>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-sm py-0.5 rounded bg-error text-on-error font-label-mono text-label-mono font-bold tracking-wider">CRITICAL</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">SCN-902</span>
+</div>
+</div>
+<!-- Structured Comparison Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Expected -->
+<div class="flex flex-col gap-space-xs p-space-md rounded-lg bg-surface-container-lowest">
+<div class="flex items-center gap-space-xs text-primary font-label-mono text-label-mono font-semibold uppercase">
+<span class="material-symbols-outlined text-[14px]">checklist</span>
+<span>Expected Behavior</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Retry once after 1.5s, then offer callback or manual hold without dropping context.
+              </p>
+</div>
+<!-- Observed -->
+<div class="flex flex-col gap-space-xs p-space-md rounded-lg bg-surface-container-high">
+<div class="flex items-center gap-space-xs text-error font-label-mono text-label-mono font-semibold uppercase">
+<span class="material-symbols-outlined text-[14px]">error_outline</span>
+<span>Observed Behavior</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">
+                Agent returned raw 504 gateway error and terminated the booking session.
+              </p>
+</div>
+</div>
+<!-- Technical Diagnostic Context Diff Trace -->
+<div class="bg-surface-container-highest rounded-lg p-space-sm flex flex-col gap-1 font-code-sm text-code-sm overflow-x-auto">
+<div class="flex items-center justify-between text-on-surface-variant pb-1 font-label-mono text-label-mono">
+<span>Stack Frame · slot_reservation_worker.ts:84</span>
+<span>timeout: 4500ms</span>
+</div>
+<div class="text-error bg-error-container/20 px-space-xs py-0.5 rounded">
+              - upstream_socket_exception: HTTP/1.1 504 Gateway Timeout [uncaught in dialog]
+            </div>
+<div class="text-primary bg-primary-fixed/20 px-space-xs py-0.5 rounded">
+              + fallback_strategy: emit('graceful_hold_offer') && persist_dialog_state()
+            </div>
+</div>
+<!-- Action bar -->
+<div class="flex items-center justify-between pt-space-xs">
+<button class="inline-flex items-center gap-space-xs text-on-surface font-label-md text-label-md hover:text-primary transition-colors" onclick="toggleTranscriptModal()">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span class="underline underline-offset-4">View transcript</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-surface-container-highest hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-colors active:scale-95" id="rerun-btn" onclick="rerunScenario(this)">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+<span>Rerun test</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. Authorization and Safety (Collapsed, Passed) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full flex items-center justify-between p-space-md hover:bg-surface-container-low text-left transition-colors" onclick="toggleAccordion('cat-4')">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Authorization and safety</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">HIPAA PHI boundary checks, auth tokens, prescription safety filter</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container font-label-mono text-label-mono text-primary font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>4 of 4 passed</span>
+</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform" id="cat-4-icon">expand_more</span>
+</div>
+</button>
+<div class="hidden px-space-md pb-space-md pt-space-xs flex-col gap-space-xs bg-surface-container-lowest" id="cat-4-body">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">PHI de-identification in conversational embeddings</span>
+<span class="font-label-mono text-label-mono text-primary">PASS (140ms)</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">Controlled medication intent blocking</span>
+<span class="font-label-mono text-label-mono text-primary">PASS (125ms)</span>
+</div>
+</div>
+</div>
+<!-- 5. Failure Recovery (Collapsed, 1 Failed) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full flex items-center justify-between p-space-md hover:bg-surface-container-low text-left transition-colors" onclick="toggleAccordion('cat-5')">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Failure recovery</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Network drop-off reconnection, silence timeouts</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-mono text-label-mono font-medium">
+<span>2 of 3 passed, 1 failed</span>
+</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform" id="cat-5-icon">expand_more</span>
+</div>
+</button>
+<div class="hidden px-space-md pb-space-md pt-space-xs flex-col gap-space-xs bg-surface-container-lowest" id="cat-5-body">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm">Patient line disconnect during OTP confirmation</span>
+<span class="font-label-mono text-label-mono text-primary">PASS</span>
+</div>
+<div class="p-space-sm rounded-lg bg-error-container/20 flex justify-between items-center text-body-sm">
+<span class="font-body-sm text-body-sm text-error font-medium">Excessive silence prompt trigger delay (>6.0s)</span>
+<span class="font-label-mono text-label-mono text-error font-bold">FAIL (6.8s)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Transcript Modal Sheet (hidden by default) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-space-lg bg-on-surface/20 backdrop-blur-sm" id="transcript-modal">
+<div class="bg-surface-container-lowest rounded-xl max-w-xl w-full max-h-[819px] flex flex-col shadow-xl overflow-hidden">
+<div class="p-space-md bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">assignment</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Execution Trace · SCN-902</span>
+</div>
+<button class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface" onclick="toggleTranscriptModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="p-space-md overflow-y-auto flex flex-col gap-space-md font-body-sm text-body-sm">
+<div class="flex gap-space-sm">
+<div class="font-label-mono text-label-mono text-on-surface-variant uppercase w-16 shrink-0">14:02:11</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-semibold text-on-surface">User:</span>
+<p class="text-on-surface-variant">"Can we move Dr. Vance to Thursday at 10 AM instead?"</p>
+</div>
+</div>
+<div class="flex gap-space-sm">
+<div class="font-label-mono text-label-mono text-on-surface-variant uppercase w-16 shrink-0">14:02:12</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-semibold text-primary">Agent:</span>
+<p class="text-on-surface-variant">"Checking Dr. Vance's calendar for Thursday, October 24th at 10:00 AM..."</p>
+</div>
+</div>
+<div class="flex gap-space-sm">
+<div class="font-label-mono text-label-mono text-error uppercase w-16 shrink-0">14:02:16</div>
+<div class="flex-1 bg-error-container/30 p-space-sm rounded-lg">
+<span class="font-semibold text-error">System Exception:</span>
+<p class="font-code-sm text-code-sm text-on-error-container">POST /v1/slots/reserve timed out after 4500ms. Socket dropped without recovery handler.</p>
+</div>
+</div>
+<div class="flex gap-space-sm">
+<div class="font-label-mono text-label-mono text-on-surface-variant uppercase w-16 shrink-0">14:02:16</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-semibold text-error">Agent (Failed Response):</span>
+<p class="text-error">"Error 504: The upstream clinic server did not respond. Goodbye."</p>
+</div>
+</div>
+</div>
+<div class="p-space-md bg-surface-container-low flex justify-end gap-space-sm">
+<button class="px-space-md py-1.5 rounded-lg bg-surface text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="toggleTranscriptModal()">
+          Close
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleAccordion(catId) {
+    const body = document.getElementById(catId + '-body');
+    const icon = document.getElementById(catId + '-icon');
+    if (!body || !icon) return;
+
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      body.classList.add('flex');
+      icon.classList.add('rotate-180');
+    } else {
+      body.classList.add('hidden');
+      body.classList.remove('flex');
+      icon.classList.remove('rotate-180');
+    }
+  }
+
+  function toggleTranscriptModal() {
+    const modal = document.getElementById('transcript-modal');
+    if (!modal) return;
+    modal.classList.toggle('hidden');
+  }
+
+  function rerunScenario(btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>Testing...</span>';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }, 1800);
+  }
+
+  function triggerRunAll() {
+    const runBtn = document.getElementById('run-evals-btn');
+    if (!runBtn) return;
+    const prev = runBtn.innerHTML;
+    runBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span><span class="font-semibold tracking-wide">Executing 20 Scenarios...</span>';
+    runBtn.disabled = true;
+
+    setTimeout(() => {
+      runBtn.innerHTML = prev;
+      runBtn.disabled = false;
+    }, 2400);
+  }
+</script></div></main><footer class="w-full bg-surface-container-low py-space-lg"><div class="max-w-3xl mx-auto px-margin-tablet flex items-center justify-between text-on-surface-variant font-label-md text-label-md"><span>CareDeploy Core · v2.14.0</span><div class="flex items-center gap-space-lg"><span class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container"></span>All clinical pipelines operational</span><span class="font-label-mono text-label-mono">Latency 18ms</span></div></div></footer></body></html>

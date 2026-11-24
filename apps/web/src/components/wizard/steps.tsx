@@ -20,7 +20,7 @@ interface StepProps {
 
 function Err({ msg }: { msg?: string }) {
   return msg ? (
-    <p role="alert" className="mt-1 text-xs text-red-600">
+    <p role="alert" className="mt-1 text-xs text-danger">
       {msg}
     </p>
   ) : null;
@@ -115,12 +115,12 @@ export function HoursServicesStep({ config, onChange, errors }: StepProps) {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="mb-1 font-medium">Operating hours</h2>
+        <h2 className="mb-1 text-base font-medium">Operating hours</h2>
         <p className="mb-3 text-sm text-muted">
           Select the days the clinic is open. Times are in the clinic&apos;s
           time zone.
         </p>
-        <div className="divide-y divide-line rounded-xl border border-line">
+        <div className="divide-y divide-line rounded-2xl border border-line bg-surface">
           {WEEKDAYS.map((day, wd) => {
             const h = config.hours.find((x) => x.weekday === wd);
             return (
@@ -164,7 +164,7 @@ export function HoursServicesStep({ config, onChange, errors }: StepProps) {
       </section>
 
       <section>
-        <h2 className="mb-1 font-medium">Appointment types</h2>
+        <h2 className="mb-1 text-base font-medium">Appointment types</h2>
         <p className="mb-3 text-sm text-muted">
           Types that need a person are escalated instead of booked by the agent.
         </p>
@@ -172,7 +172,7 @@ export function HoursServicesStep({ config, onChange, errors }: StepProps) {
           {config.appointment_types.map((t, i) => (
             <div
               key={i}
-              className="space-y-3 rounded-xl border border-line p-4"
+              className="space-y-3 rounded-2xl border border-line bg-surface p-4"
             >
               <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
                 <div>
@@ -223,7 +223,7 @@ export function HoursServicesStep({ config, onChange, errors }: StepProps) {
                 </label>
                 <button
                   type="button"
-                  className="text-sm text-muted hover:text-red-600"
+                  className="text-sm text-muted hover:text-danger"
                   onClick={() =>
                     onChange({
                       ...config,
@@ -284,7 +284,7 @@ export function PolicyStep({ config, onChange, errors }: StepProps) {
   return (
     <div className="space-y-6">
       <section className="space-y-4">
-        <h2 className="font-medium">Booking</h2>
+        <h2 className="text-base font-medium">Booking</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {num(
             "min_notice_hours",
@@ -307,7 +307,7 @@ export function PolicyStep({ config, onChange, errors }: StepProps) {
         </label>
       </section>
       <section className="space-y-4">
-        <h2 className="font-medium">Cancellation and rescheduling</h2>
+        <h2 className="text-base font-medium">Cancellation and rescheduling</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {num(
             "cancellation_window_hours",

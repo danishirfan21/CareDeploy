@@ -3,13 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ConfigSummary } from "@/components/config-summary";
-import {
-  ButtonLink,
-  Notice,
-  PageHeader,
-  primaryBtn,
-  secondaryBtn,
-} from "@/components/ui";
+import { Card } from "@/components/primitives";
+import { WizardNavigation, WizardProgress } from "./wizard-parts";
+import { ButtonLink, Notice, PageHeader } from "@/components/ui";
 import { ApiError, api } from "@/lib/api/client";
 import type {
   ClinicConfig,
@@ -155,148 +151,119 @@ function WizardBody({
         subtitle="Configuration draft. Nothing is live until later milestones."
       />
 
-      <div className="mb-8">
-        <div className="mb-2 flex gap-1.5" aria-hidden>
-          {STEP_TITLES.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full ${i < step ? "bg-accent" : "bg-gray-200"}`}
-            />
-          ))}
-        </div>
-        <p className="text-sm text-muted" data-testid="step-indicator">
-          Step {step} of 5 ·{" "}
-          <span className="font-medium text-foreground">
-            {STEP_TITLES[step - 1]}
-          </span>
-        </p>
-      </div>
+      <Card className="p-5 md:p-8">
+        <WizardProgress
+          step={step}
+          titles={STEP_TITLES}
+          clinicName={config.details.name}
+        />
 
-      <form
-        noValidate
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (step < 5) onContinue();
-        }}
-      >
-        {step === 1 && (
-          <DetailsStep config={config} onChange={edit} errors={errors} />
-        )}
-        {step === 2 && (
-          <HoursServicesStep config={config} onChange={edit} errors={errors} />
-        )}
-        {step === 3 && (
-          <PolicyStep config={config} onChange={edit} errors={errors} />
-        )}
-        {step === 4 && (
-          <AgentStep config={config} onChange={edit} errors={errors} />
-        )}
-        {step === 5 && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="mb-2 font-medium">Validation</h2>
-              {validation === null ? (
-                <Notice tone="info">
-                  Not checked yet. Save the draft to validate.
-                </Notice>
-              ) : (
-                <div className="space-y-2" data-testid="validation-results">
-                  {blocking.length === 0 ? (
-                    <Notice tone="success">
-                      No blocking issues. This configuration can be published.
-                    </Notice>
-                  ) : (
-                    <Notice tone="error">
-                      <p className="mb-1 font-medium">
-                        {blocking.length} issue{blocking.length > 1 ? "s" : ""}{" "}
-                        to fix before publishing
-                      </p>
-                      <ul className="list-disc pl-5">
-                        {blocking.map((i, n) => (
-                          <li key={n}>{i.message}</li>
-                        ))}
-                      </ul>
-                    </Notice>
-                  )}
-                  {warnings.length > 0 && (
-                    <Notice tone="warning">
-                      <ul className="list-disc pl-5">
-                        {warnings.map((i, n) => (
-                          <li key={n}>{i.message}</li>
-                        ))}
-                      </ul>
-                    </Notice>
-                  )}
-                </div>
-              )}
-            </div>
-            <ConfigSummary config={config} />
-            <p className="text-xs text-muted">
-              Publishing saves an immutable, numbered version of this
-              configuration. It does not make a live voice agent available; that
-              comes in later milestones.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-6 space-y-3">
-          {banner && <Notice tone={banner.tone}>{banner.text}</Notice>}
-          {published && (
-            <Notice tone="success">
-              <p data-testid="published-notice">
-                <strong className="font-medium">
-                  Version {published.version} published.
-                </strong>{" "}
-                It is now an immutable snapshot. No live voice agent is
-                available yet.
-              </p>
-              <p className="mt-2">
-                <Link
-                  href={`/clinics/${published.clinic_id}`}
-                  className="font-medium underline"
-                >
-                  View clinic
-                </Link>
-              </p>
-            </Notice>
+        <form
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (step < 5) onContinue();
+          }}
+        >
+          {step === 1 && (
+            <DetailsStep config={config} onChange={edit} errors={errors} />
           )}
-        </div>
+          {step === 2 && (
+            <HoursServicesStep
+              config={config}
+              onChange={edit}
+              errors={errors}
+            />
+          )}
+          {step === 3 && (
+            <PolicyStep config={config} onChange={edit} errors={errors} />
+          )}
+          {step === 4 && (
+            <AgentStep config={config} onChange={edit} errors={errors} />
+          )}
+          {step === 5 && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="mb-2 font-medium">Validation</h2>
+                {validation === null ? (
+                  <Notice tone="info">
+                    Not checked yet. Save the draft to validate.
+                  </Notice>
+                ) : (
+                  <div className="space-y-2" data-testid="validation-results">
+                    {blocking.length === 0 ? (
+                      <Notice tone="success">
+                        No blocking issues. This configuration can be published.
+                      </Notice>
+                    ) : (
+                      <Notice tone="error">
+                        <p className="mb-1 font-medium">
+                          {blocking.length} issue
+                          {blocking.length > 1 ? "s" : ""} to fix before
+                          publishing
+                        </p>
+                        <ul className="list-disc pl-5">
+                          {blocking.map((i, n) => (
+                            <li key={n}>{i.message}</li>
+                          ))}
+                        </ul>
+                      </Notice>
+                    )}
+                    {warnings.length > 0 && (
+                      <Notice tone="warning">
+                        <ul className="list-disc pl-5">
+                          {warnings.map((i, n) => (
+                            <li key={n}>{i.message}</li>
+                          ))}
+                        </ul>
+                      </Notice>
+                    )}
+                  </div>
+                )}
+              </div>
+              <ConfigSummary config={config} />
+              <p className="text-xs text-muted">
+                Publishing saves an immutable, numbered version of this
+                configuration. It does not make a live voice agent available;
+                that comes in later milestones.
+              </p>
+            </div>
+          )}
 
-        <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
-          <button
-            type="button"
-            className={secondaryBtn}
-            onClick={onBack}
-            disabled={step === 1 || busy}
-          >
-            Back
-          </button>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className={secondaryBtn}
-              onClick={onSave}
-              disabled={busy}
-            >
-              {step === 5 ? "Save draft" : "Save"}
-            </button>
-            {step < 5 ? (
-              <button type="submit" className={primaryBtn} disabled={busy}>
-                Continue
-              </button>
-            ) : (
-              <button
-                type="button"
-                className={primaryBtn}
-                onClick={onPublish}
-                disabled={busy || validation === null || blocking.length > 0}
-              >
-                Publish version
-              </button>
+          <div className="mt-6 space-y-3">
+            {banner && <Notice tone={banner.tone}>{banner.text}</Notice>}
+            {published && (
+              <Notice tone="success">
+                <p data-testid="published-notice">
+                  <strong className="font-medium">
+                    Version {published.version} published.
+                  </strong>{" "}
+                  It is now an immutable snapshot. No live voice agent is
+                  available yet.
+                </p>
+                <p className="mt-2">
+                  <Link
+                    href={`/clinics/${published.clinic_id}`}
+                    className="font-medium underline"
+                  >
+                    View clinic
+                  </Link>
+                </p>
+              </Notice>
             )}
           </div>
-        </div>
-      </form>
+
+          <WizardNavigation
+            step={step}
+            lastStep={5}
+            busy={busy}
+            canPublish={validation !== null && blocking.length === 0}
+            onBack={onBack}
+            onSave={onSave}
+            onPublish={onPublish}
+          />
+        </form>
+      </Card>
       {step === 5 && id && published === null && (
         <p className="mt-4 text-sm">
           <ButtonLink href={`/clinics/${id}`} variant="secondary">

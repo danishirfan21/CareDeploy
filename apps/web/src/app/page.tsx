@@ -1,51 +1,39 @@
 import Link from "next/link";
+import { Icon, type IconName } from "@/components/icons";
 
-const ACTIONS = [
-  {
-    href: "/clinics/new",
-    title: "Set up a clinic",
-    body: "Create a clinic and walk through its five-step configuration.",
-    note: null,
-  },
-  {
-    href: "/playground",
-    title: "Test a voice agent",
-    body: "Try a clinic's agent against its published configuration.",
-    note: "Unavailable until M3",
-  },
-  {
-    href: "/evaluations",
-    title: "Run evaluations",
-    body: "Score an agent against automated scenarios.",
-    note: "Unavailable until M4",
-  },
+const ACTIONS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/clinics/new", label: "Set up a clinic", icon: "building" },
+  { href: "/playground", label: "Test a voice agent", icon: "playground" },
+  { href: "/evaluations", label: "Run evaluations", icon: "evaluations" },
 ];
 
 export default function Home() {
   return (
-    <div className="pt-6 md:pt-16">
-      <h1 className="text-3xl font-semibold tracking-tight">
+    <div className="flex min-h-[55vh] flex-col items-center justify-center text-center md:min-h-[60vh]">
+      <div
+        aria-hidden
+        className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-line bg-surface text-primary"
+      >
+        <Icon name="activity" className="h-6 w-6" />
+      </div>
+      <h1 className="text-[28px] font-semibold leading-9 tracking-[-0.03em] md:text-4xl md:leading-[44px]">
         What would you like to do?
       </h1>
-      <p className="mt-2 text-muted">
-        Deploy configuration-driven voice agents across clinics.
+      <p className="mx-auto mt-2 max-w-md text-muted">
+        Set up a clinic, test an agent, or review recent activity.
       </p>
-      <ul className="mt-10 grid gap-3">
+      <ul
+        aria-label="Suggested actions"
+        className="mt-10 flex flex-wrap items-center justify-center gap-3"
+      >
         {ACTIONS.map((a) => (
           <li key={a.href}>
             <Link
               href={a.href}
-              className="block rounded-xl border border-line p-4 transition hover:border-accent hover:bg-accent-soft"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-5 text-sm hover:bg-surface-low"
             >
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-medium">{a.title}</span>
-                {a.note && (
-                  <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-muted">
-                    {a.note}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-muted">{a.body}</p>
+              <Icon name={a.icon} className="h-4 w-4 text-primary" />
+              {a.label}
             </Link>
           </li>
         ))}

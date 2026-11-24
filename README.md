@@ -9,6 +9,7 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M0 | Monorepo foundation, health checks, CI | Done |
 | M1 | Multi-clinic management, five-step configuration wizard, immutable published versions | Done |
 | M2 | Scheduling engine, confirmed and idempotent booking, reliability tests | Done |
+| M2.5 | Stitch UI integration (frontend only) | Done |
 | M3 | Voice agent and playground | Not started |
 | M4 | Evaluations | Not started |
 
@@ -108,6 +109,7 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 | [`docs/scheduling.md`](docs/scheduling.md) | Rules, time zones and DST, lifecycle, API, adapter, limitations |
 | [`docs/authorization.md`](docs/authorization.md) | Simulated verification and the confirmation flow |
 | [`docs/idempotency.md`](docs/idempotency.md) | Retry protocol, failure recovery, client guidance |
+| [`docs/ui-architecture.md`](docs/ui-architecture.md) | Stitch integration, components, responsive behavior |
 | [`docs/implementation-status.md`](docs/implementation-status.md) | What was verified and what was not |
 | [`docs/product-spec.md`](docs/product-spec.md) | Product specification |
 
@@ -116,6 +118,6 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 - Verification is simulated (no real identity proofing, no staff roles), and there is no integration with an external EHR.
 - One bookable resource per clinic: no providers or rooms.
 - The M1 configuration endpoints are unauthenticated.
-- Design exports from Stitch are not yet in `design/`, so the UI makes no claim of visual fidelity.
+- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. Playground, Evaluations and Activity show honest unavailable states until M3/M4.
 
 See [`docs/implementation-status.md`](docs/implementation-status.md) for the full list.

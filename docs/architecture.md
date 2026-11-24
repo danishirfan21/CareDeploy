@@ -4,7 +4,7 @@
 - **Backend** `apps/api`: FastAPI, async SQLAlchemy 2 (asyncpg). Alembic runs migrations over sync psycopg using the same `DATABASE_URL`.
 - **Database**: PostgreSQL 17 (Docker Compose). Constraint naming convention set in `app/db/base.py`.
 - **Contracts**: Pydantic schemas are the source of truth; TypeScript types mirrored manually (revisit codegen from OpenAPI when the surface grows).
-- **UI direction**: minimal ChatGPT-inspired workspace (Home, Clinics + Wizard, Voice Playground, Evaluations, Activity). Not built yet.
+- **UI**: Stitch-based workspace (Home, Clinics + Wizard, Playground, Evaluations, Activity). See `ui-architecture.md`.
 - **Ports**: API 8000, web 3100, Postgres 5432.
 
 ## M1 data model
@@ -21,4 +21,4 @@
 - Details: `docs/scheduling.md`, `docs/authorization.md`, `docs/idempotency.md`, `docs/data-model.md`. The voice agent (M3) is not built; it will call the adapter.
 
 ## Frontend
-Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheComponents` is disabled. The UI is deliberately functional and unpolished until the Stitch screens are provided. `/dev/scheduling` is a development/test console for the scheduling API (not in the navigation, not a patient portal).
+Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheComponents` is disabled. The UI follows the Stitch exports; see `ui-architecture.md`. `/dev/scheduling` is a development/test console for the scheduling API (not in the navigation, not a patient portal).
