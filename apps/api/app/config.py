@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     voice_agent_name: str = "caredeploy-voice"
     voice_token_ttl_seconds: int = 600
 
+    # Operations (M5). No prices are built in: point COST_RATES_FILE at a rate file you maintain.
+    cost_rates_file: str = ""
+    # A completed full workflow run older than this no longer counts as deployment evidence.
+    deployment_evidence_max_age_days: int = 30
+
     @property
     def voice_missing(self) -> list[str]:
         pairs = {

@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 
 from app import __version__
-from app.api import clinics, evals, health, scheduling, voice
+from app.api import clinics, deployments, evals, health, ops, scheduling, voice
 from app.config import get_settings
 from app.scheduling.errors import DependencyUnavailable, SchedulingError
 
@@ -35,6 +35,8 @@ def create_app() -> FastAPI:
     app.include_router(scheduling.router, prefix="/api")
     app.include_router(voice.router, prefix="/api")
     app.include_router(evals.router, prefix="/api")
+    app.include_router(ops.router, prefix="/api")
+    app.include_router(deployments.router, prefix="/api")
 
     @app.exception_handler(SchedulingError)
     async def _scheduling_error(request: Request, exc: SchedulingError) -> JSONResponse:

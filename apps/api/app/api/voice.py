@@ -24,7 +24,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.db.session import get_session
-from app.models import CallEvent, CallSession, Clinic, ConfigVersion
+from app.deploy.service import NO_ACTIVE_MESSAGE, active_deployment
+from app.models import CallEvent, CallSession, Clinic, ConfigVersion, Deployment
+from app.ops.calls import classify_session
+from app.ops.redact import scrub
 from app.scheduling.runtime import Clock, get_clock
 from app.schemas.clinic import ClinicConfig
 from app.schemas.voice import (
@@ -45,34 +48,12 @@ router = APIRouter(tags=["voice"])
 
 DEV_ACTOR = "local-dev-operator"  # single-operator development limitation: see docs/voice-agent.md
 TERMINAL = {"completed", "failed", "abandoned"}
-# Keys that must never be persisted, wherever they appear in a payload.
-FORBIDDEN_KEYS = {
-    "date_of_birth",
-    "dob",
-    "phone",
-    "phone_last4",
-    "token",
-    "access_token",
-    "confirmation_token",
-    "authorization",
-    "api_key",
-    "secret",
-}
 
 Db = Annotated[AsyncSession, Depends(get_session)]
 
 
 def _err(status: int, code: str, message: str, **extra: Any) -> HTTPException:
     return HTTPException(status, detail={"code": code, "message": message, **extra})
-
-
-def scrub(value: Any) -> Any:
-    """Drop forbidden keys recursively (defence in depth; the worker redacts first)."""
-    if isinstance(value, dict):
-        return {k: scrub(v) for k, v in value.items() if k.lower() not in FORBIDDEN_KEYS}
-    if isinstance(value, list):
-        return [scrub(v) for v in value]
-    return value
 
 
 def require_voice_configured(settings: Settings) -> None:
@@ -119,6 +100,37 @@ async def _published(
             "This clinic has no published configuration. Publish it before starting a call.",
         )
     return clinic, cv
+
+
+async def _active(
+    db: AsyncSession, clinic_id: uuid.UUID
+) -> tuple[Clinic, ConfigVersion, Deployment]:
+    """New sessions use the active deployment, never "the latest published version"."""
+    clinic = await db.get(Clinic, clinic_id)
+    if clinic is None:
+        raise HTTPException(404, detail="Clinic not found.")
+    dep = await active_deployment(db, clinic_id)
+    if dep is None:
+        if (
+            await db.scalar(
+                select(ConfigVersion.id).where(ConfigVersion.clinic_id == clinic_id).limit(1)
+            )
+            is None
+        ):
+            raise _err(
+                409,
+                "clinic_not_configured",
+                "This clinic has no published configuration. Publish it before starting a call.",
+            )
+        raise _err(409, "no_active_deployment", NO_ACTIVE_MESSAGE)
+    cv = await db.scalar(
+        select(ConfigVersion).where(
+            ConfigVersion.clinic_id == clinic_id, ConfigVersion.version == dep.config_version
+        )
+    )
+    if cv is None:  # unreachable: composite foreign key; fail closed anyway
+        raise _err(409, "no_active_deployment", NO_ACTIVE_MESSAGE)
+    return clinic, cv, dep
 
 
 async def _session(db: AsyncSession, session_id: uuid.UUID) -> CallSession:
@@ -200,7 +212,7 @@ async def create_session(
     clock: Clock = Depends(get_clock),
 ) -> VoiceSessionCreated:
     require_voice_configured(settings)
-    clinic, cv = await _published(db, clinic_id)
+    clinic, cv, dep = await _active(db, clinic_id)
     config = ClinicConfig.model_validate(cv.snapshot)
     now = clock()
     expires = timedelta(seconds=settings.voice_token_ttl_seconds)
@@ -209,6 +221,7 @@ async def create_session(
         id=session_id,
         clinic_id=clinic.id,
         config_version=cv.version,
+        deployment_id=dep.id,
         room_name=f"call-{session_id}",
         status="created",
         dev_actor=DEV_ACTOR,
@@ -297,6 +310,8 @@ async def end_session(
             cs.error = body.reason
     elif cs.status == "active":
         _finish(cs, "completed", clock(), "browser")
+    if cs.status in TERMINAL:
+        await classify_session(db, cs, clock())
     await db.commit()
     return await _read_full(db, cs)
 
@@ -392,5 +407,6 @@ async def complete(
     cs.metrics = scrub(body.metrics)
     cs.provider_usage = scrub(body.provider_usage)
     cs.live_state = {**(cs.live_state or {}), "ended": True}
+    await classify_session(db, cs, clock())
     await db.commit()
     return await _read_full(db, cs)

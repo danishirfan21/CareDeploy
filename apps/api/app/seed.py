@@ -196,7 +196,26 @@ async def publish_seeded(session: AsyncSession) -> list[str]:
             published.append(config.details.name)
         except svc.ConfigNotChangedError:
             pass
+        await activate_latest(session, clinic)
     return published
+
+
+async def activate_latest(session: AsyncSession, clinic: Clinic) -> None:
+    """Sample data only: make the newest published version the active simulated-live deployment so
+    a fresh sample database can start calls. Recorded as `seed`, never as evaluated."""
+    from app.deploy.service import active_deployment, seed_activation
+    from app.models import ConfigVersion
+
+    if await active_deployment(session, clinic.id) is not None:
+        return
+    latest = await session.scalar(
+        select(ConfigVersion.version)
+        .where(ConfigVersion.clinic_id == clinic.id)
+        .order_by(ConfigVersion.version.desc())
+        .limit(1)
+    )
+    if latest is not None:
+        await seed_activation(session, clinic.id, latest)
 
 
 SANDBOX_NAME = "Sandbox Family Clinic"
@@ -221,6 +240,7 @@ async def seed_sandbox(session: AsyncSession) -> None:
         )
     await session.flush()
     await svc.publish(session, clinic)
+    await activate_latest(session, clinic)
     await session.commit()
 
 

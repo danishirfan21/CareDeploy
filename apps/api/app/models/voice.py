@@ -35,6 +35,7 @@ CALL_OUTCOMES = (
     "no_action",
     "failed",
 )
+OUTCOME_CLASSES = ("completed", "escalated", "failed", "abandoned", "interrupted", "unknown")
 EVENT_KINDS = ("transcript", "tool", "state", "operation", "error", "system")
 
 
@@ -49,7 +50,12 @@ class CallSession(Base):
         CheckConstraint(
             "outcome IS NULL OR " + _in("outcome", CALL_OUTCOMES), name="ck_call_sessions_outcome"
         ),
+        CheckConstraint(
+            "outcome_class IS NULL OR " + _in("outcome_class", OUTCOME_CLASSES),
+            name="ck_call_sessions_outcome_class",
+        ),
         Index("ix_call_sessions_clinic_created", "clinic_id", "created_at"),
+        Index("ix_call_sessions_clinic_class", "clinic_id", "outcome_class"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -73,6 +79,15 @@ class CallSession(Base):
     provider_usage: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     live_state: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     live_state_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # M5: the deployment that selected this session's version (null for sessions created before
+    # deployments existed) and the verified, domain-level classification (null until the call is
+    # over). `outcome` above stays the agent's own report; `outcome_class` is what the ledger shows.
+    deployment_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("deployments.id", name="fk_call_sessions_deployment")
+    )
+    outcome_class: Mapped[str | None] = mapped_column(String(20))
+    task_type: Mapped[str | None] = mapped_column(String(30))
+    classified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class CallEvent(Base):

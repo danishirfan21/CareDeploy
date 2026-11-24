@@ -171,9 +171,10 @@ async def test_claim_returns_frozen_config_even_after_republish(voice: None, wor
     )
     assert again.status_code == 409
 
-    # New sessions use the newly published version.
+    # Publishing alone does not change what new calls use: only the active
+    # deployment does (M5), so new sessions stay on version 1 until promoted.
     s2 = await create(world.client, world.north.id)
-    assert s2["config_version"] == 2
+    assert s2["config_version"] == 1
 
 
 async def test_events_are_idempotent_ordered_and_scrubbed(voice: None, world: World) -> None:
