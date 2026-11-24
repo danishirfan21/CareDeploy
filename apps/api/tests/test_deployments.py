@@ -10,6 +10,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy import select, text, update
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.db.session import get_sessionmaker
@@ -142,9 +143,16 @@ async def test_concurrent_promotions_leave_one_active(evaluated: World) -> None:
     assert len(active) == 1 and len(events) == 1
 
 
+async def tamper(s: AsyncSession) -> None:
+    """Disable triggers for this transaction only, so a test can fabricate evidence that the
+    immutability triggers would otherwise (rightly) refuse. Test setup only."""
+    await s.execute(text("SET LOCAL session_replication_role = replica"))
+
+
 async def test_critical_failure_blocks(evaluated: World) -> None:
     w = evaluated
     async with get_sessionmaker()() as s:
+        await tamper(s)
         await s.execute(
             text(
                 "UPDATE eval_scenario_results SET status='failed', "
@@ -162,6 +170,7 @@ async def test_stale_evidence_is_rejected(evaluated: World) -> None:
     w = evaluated
     old = datetime.now(UTC) - timedelta(days=90)
     async with get_sessionmaker()() as s:
+        await tamper(s)
         await s.execute(update(EvalRun).values(finished_at=old))
         await s.commit()
     r = await promote(w)
@@ -173,6 +182,7 @@ async def test_stale_evidence_is_rejected(evaluated: World) -> None:
 async def test_changed_suite_invalidates_evidence(evaluated: World) -> None:
     w = evaluated
     async with get_sessionmaker()() as s:
+        await tamper(s)
         await s.execute(update(EvalRun).values(suite_hash="0" * 64))
         await s.commit()
     r = await promote(w)

@@ -176,6 +176,8 @@ async def assess(
     action: str,
     settings: Settings,
     now: datetime,
+    *,
+    sweep: bool = True,
 ) -> DeploymentAssessment:
     """Decide whether `version` may become active. Raises DeployError 404 for an unknown version
     (a version number from another clinic is exactly that: unknown here)."""
@@ -190,7 +192,8 @@ async def assess(
         raise DeployError(
             404, "version_not_found", f"Version {version} is not published for this clinic."
         )
-    await sweep_stale(db, clinic.id)
+    if sweep:
+        await sweep_stale(db, clinic.id)  # commits: never call while holding the clinic lock
     views = await latest_views(db, clinic.id, version)
     readiness = analysis.compute_readiness(version, views)
     wf = readiness["modes"]["workflow"]
@@ -321,6 +324,8 @@ async def _apply(
     settings: Settings,
     now: datetime,
 ) -> tuple[Deployment, DeploymentEvent, bool]:
+    # sweep_stale commits, which would release the lock, so it runs before the lock is taken.
+    await sweep_stale(db, clinic_id)
     # Serialize every change for this clinic. Held until commit or rollback.
     clinic = await db.scalar(select(Clinic).where(Clinic.id == clinic_id).with_for_update())
     if clinic is None:
@@ -356,7 +361,7 @@ async def _apply(
             "deploying again.",
             active_version=current,
         )
-    assessment = await assess(db, clinic, version, action, settings, now)
+    assessment = await assess(db, clinic, version, action, settings, now, sweep=False)
     if not assessment.eligible:
         failed = [c for c in assessment.checks if not c.passed]
         if any(c.id == "not_active" for c in failed) and len(failed) == 1:
