@@ -3,22 +3,16 @@
 ## M0 — Foundation (2026-11-24)
 
 ### Verified (actually executed)
-- Backend: `ruff check`, `ruff format --check`, `mypy` (strict) pass; `pytest` 2 passed (health, CORS).
-- `alembic upgrade head --sql` generates the expected `clinics` DDL (offline SQL only).
-- Frontend: `eslint`, `tsc --noEmit`, `prettier --check`, `next build` pass.
-- Playwright: "frontend reaches backend health endpoint" passes (browser -> Next on :3100 -> FastAPI on :8000).
+- Backend: `ruff`, `mypy` (strict) pass; `pytest` 3 passed, including real DB connectivity.
+- `alembic upgrade head` executed against real PostgreSQL 16; `clinics` and `alembic_version` tables confirmed via psql.
+- `/api/health/db` returned `{"status":"ok","database":true}` live.
+- Frontend: `eslint`, `tsc`, `prettier`, `next build` pass.
+- Playwright: 2 passed (frontend -> API health, and database connectivity through the UI).
 
-### NOT verified (blocked)
-- **Docker is not installed** on this machine, so `docker compose up postgres` was never run.
-- **PostgreSQL connectivity and migration execution**: a local PostgreSQL 16 service exists, but requires a password I don't have (I did not guess credentials). Hence:
-  - `pytest::test_database_connectivity` FAILS (cannot connect).
-  - Playwright "backend reports database connectivity" FAILS.
-  - `alembic upgrade head` was not executed against a real database.
-  - `/api/health/db` returns 503 `{"status":"unavailable"}` here (correct failure behaviour, observed).
-- CI workflow is unrun (not pushed).
-
-### To finish M0 acceptance
-Install Docker, `docker compose up -d postgres`, `alembic upgrade head`, `pytest`, `npm run test:e2e` (see README).
+### Not verified
+- **Docker Compose**: Docker is not installed here, so `docker compose up postgres` was never run. The compose file is untested.
+- GitHub Actions CI is unrun (not pushed).
+- Verification used a dedicated local cluster (`D:\CareDeploy\.pgdata`, port 5433, Postgres 16 binaries from `D:\Postgresql`), not Compose's Postgres 17.
 
 ### Notes
 - Web dev port is 3100 because 3000 is occupied by another local app.

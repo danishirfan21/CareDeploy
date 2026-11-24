@@ -24,6 +24,16 @@ Verify: `http://localhost:8000/api/health`, `/api/health/db`, and the home page 
 
 Port 3100 is used for the web app to avoid clashing with other local apps on 3000.
 
+## Without Docker (Windows, local Postgres binaries)
+```powershell
+$b="D:\Postgresqlin"   # your Postgres bin dir
+"caredeploy" | Set-Content $env:TEMP\pw.txt
+& "$b\initdb.exe" -D .pgdata -U caredeploy --pwfile=$env:TEMP\pw.txt --auth=scram-sha-256
+Start-Process "$b\pg_ctl.exe" "-D .pgdata -o `"-p 5433`" -l .pgdata\server.log start" -NoNewWindow
+$env:PGPASSWORD="caredeploy"; & "$b\createdb.exe" -h localhost -p 5433 -U caredeploy caredeploy
+# .env: DATABASE_URL=postgresql+asyncpg://caredeploy:caredeploy@localhost:5433/caredeploy
+```
+
 ## Checks
 ```powershell
 cd apps/api; .venv\Scripts\ruff check .; .venv\Scripts\ruff format --check .; .venv\Scripts\mypy; .venv\Scripts\pytest
