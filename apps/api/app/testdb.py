@@ -1,6 +1,6 @@
 """Create a fresh, migrated, isolated database for tests (pytest and Playwright).
 
-Usage: python -m app.testdb <database_name> [--seed] [--serve PORT]
+Usage: python -m app.testdb <database_name> [--seed [--sandbox]] [--serve PORT]
 Never touches the database named in the normal DATABASE_URL.
 """
 
@@ -41,7 +41,7 @@ def reset_database(name: str) -> None:
 
 def main() -> None:
     from app.db.session import get_engine
-    from app.seed import seed
+    from app.seed import seed, seed_sandbox
 
     name = sys.argv[1]
     reset_database(name)
@@ -53,6 +53,8 @@ def main() -> None:
             engine = get_engine()
             async with async_sessionmaker(engine)() as session:
                 await seed(session)
+                if "--sandbox" in sys.argv:
+                    await seed_sandbox(session)
             await engine.dispose()
 
         asyncio.run(run())

@@ -199,6 +199,31 @@ async def publish_seeded(session: AsyncSession) -> list[str]:
     return published
 
 
+SANDBOX_NAME = "Sandbox Family Clinic"
+
+
+async def seed_sandbox(session: AsyncSession) -> None:
+    """Published copy of the Northstar configuration with sample patients, for browser tests that
+    need a bookable clinic without publishing (and so changing) the seeded sample clinics."""
+    if await session.scalar(select(Clinic.id).where(Clinic.name == SANDBOX_NAME)):
+        return
+    config = NORTHSTAR.model_copy(deep=True)
+    config.details.name = SANDBOX_NAME
+    clinic = Clinic(**config.details.model_dump())
+    session.add(clinic)
+    await session.flush()
+    await svc.save_config(session, clinic, config)
+    for name, dob, phone, email in PATIENTS["Northstar Family Medicine"]:
+        session.add(
+            Patient(
+                clinic_id=clinic.id, full_name=name, date_of_birth=dob, phone=phone, email=email
+            )
+        )
+    await session.flush()
+    await svc.publish(session, clinic)
+    await session.commit()
+
+
 async def seed(session: AsyncSession) -> list[str]:
     created: list[str] = []
     for config in (NORTHSTAR, LAKESIDE):
