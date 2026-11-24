@@ -6,6 +6,7 @@ from app.models.config import (
     OperatingHours,
     SchedulingPolicy,
 )
+from app.models.evals import EvalEvent, EvalRun, EvalScenarioResult
 from app.models.scheduling import (
     Appointment,
     AppointmentEvent,
@@ -17,6 +18,9 @@ from app.models.scheduling import (
 from app.models.voice import CallEvent, CallSession
 
 __all__ = [
+    "EvalEvent",
+    "EvalRun",
+    "EvalScenarioResult",
     "CallEvent",
     "CallSession",
     "Appointment",
