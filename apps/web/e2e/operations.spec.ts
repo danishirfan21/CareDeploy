@@ -11,7 +11,7 @@ import { api, expectStep, next, unique } from "./helpers";
 // order of other specs or on the shared sandbox clinic's state.
 const WORKER = { "X-Voice-Worker-Secret": "e2e-worker-secret" };
 const SANDBOX = "Sandbox Family Clinic";
-const EMPTY_CLINIC = "Lakeside Pediatrics";
+const EMPTY_CLINIC = "Lakeside Dermatology";
 
 interface Clinic {
   id: string;
@@ -162,6 +162,7 @@ test("calls are listed, filtered, searched and opened", async ({
 
   // Details.
   await page.getByLabel("Search calls").fill(info.slice(0, 8));
+  await expect(page.getByTestId("call-link")).toHaveCount(1);
   await page.getByTestId("call-link").click();
   await expect(page.getByTestId("call-outcome")).toContainText("Completed");
   await expect(page.getByTestId("call-config")).toContainText("Version");
@@ -231,7 +232,11 @@ async function newClinic(request: APIRequestContext) {
   const created = await request.post(`${api}/clinics`, { data: details });
   expect(created.status()).toBe(201);
   const id = ((await created.json()) as Clinic).id;
-  const config = { ...cfg.config, details };
+  // Appointment-type ids belong to the clinic they were created in: send new types without ids.
+  const types = ((cfg.config as Json).appointment_types as Json[]).map((t) =>
+    Object.fromEntries(Object.entries(t).filter(([k]) => k !== "id")),
+  );
+  const config = { ...cfg.config, details, appointment_types: types };
   expect(
     (
       await request.put(`${api}/clinics/${id}/config`, { data: config })

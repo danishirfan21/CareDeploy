@@ -28,7 +28,9 @@ test("home actions and sidebar navigation", async ({ page }) => {
     "Choose a clinic to begin",
   );
   await nav.getByRole("link", { name: "Activity" }).click();
-  await expect(page.getByTestId("unavailable")).toContainText("No calls yet");
+  await expect(page.getByTestId("unavailable")).toContainText(
+    "Select a clinic to see its calls",
+  );
   await nav.getByRole("link", { name: "Clinics" }).click();
   await expect(page).toHaveURL(/\/clinics$/);
 
@@ -87,7 +89,9 @@ test("activity tabs are empty without records", async ({ page }) => {
     "aria-selected",
     "true",
   );
-  await expect(page.getByTestId("unavailable")).toContainText("No calls yet");
+  await expect(page.getByTestId("unavailable")).toContainText(
+    "Select a clinic to see its calls",
+  );
   await page.getByRole("tab", { name: /Evaluations/ }).click();
   await expect(page.getByTestId("unavailable")).toContainText(
     "Choose a clinic",

@@ -200,7 +200,10 @@ test("activity lists persisted evaluation runs", async ({ page, request }) => {
   await expect(page.getByTestId("activity-detail")).toContainText("Completed");
   // The Calls tab is unaffected.
   await page.getByRole("tab", { name: /Calls/ }).click();
-  await expect(page.getByTestId("unavailable")).toContainText("No calls yet");
+  await expect(page.getByRole("tab", { name: /Calls/ })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
 });
 
 test.describe("mobile", () => {

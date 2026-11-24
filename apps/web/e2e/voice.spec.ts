@@ -190,15 +190,18 @@ test("a full call: connect, transcript, tools, confirmation, end and outcome", a
   await expect(outcome).toContainText("Duration");
   await outcome.getByRole("link", { name: "View call details" }).click();
 
-  await expect(page).toHaveURL(new RegExp(`/activity/calls/${s.id}$`));
-  await expect(page.getByTestId("call-meta")).toContainText(CLINIC);
-  await expect(page.getByTestId("call-operations")).toContainText("op-e2e-1");
-  await expect(page.getByRole("region", { name: "Transcript" })).toContainText(
-    "book a checkup",
+  await expect(page).toHaveURL(
+    new RegExp(`/activity/calls/${s.id}([?]clinic=.*)?$`),
   );
-  await expect(
-    page.getByRole("region", { name: "Tool activity" }),
-  ).toContainText("Caller verified.");
+  await expect(page.getByTestId("call-meta")).toContainText(CLINIC);
+  // The agent reported an operation id the ledger does not hold: it is not shown as a change.
+  await expect(page.getByTestId("call-operations")).toContainText(
+    "None recorded",
+  );
+  await expect(page.getByTestId("transcript")).toContainText("book a checkup");
+  await expect(page.getByTestId("agent-actions")).toContainText(
+    "Caller verified.",
+  );
 });
 
 test("voice not configured shows the missing settings and starts nothing", async ({

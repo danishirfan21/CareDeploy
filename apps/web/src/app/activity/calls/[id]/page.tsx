@@ -45,7 +45,7 @@ function Summary({ c }: { c: CallDetail }) {
           )}
         </Row>
         <Row label="Task">{c.task_label ?? UNAVAILABLE}</Row>
-        <Row label="Clinic and agent">
+        <Row label="Clinic and agent" testId="call-meta">
           {c.clinic_name} · {c.agent_name ?? UNAVAILABLE}
         </Row>
         <Row label="Started">{when(c.started_at ?? c.created_at)}</Row>
