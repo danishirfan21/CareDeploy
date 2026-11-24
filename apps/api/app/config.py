@@ -17,6 +17,25 @@ class Settings(BaseSettings):
     verification_max_attempts: int = 5
     verification_lockout_minutes: int = 10
 
+    # Voice (M3). Nothing here has a usable default for credentials: with them unset, session
+    # creation answers 503 `voice_not_configured` instead of pretending.
+    livekit_url: str = ""
+    livekit_api_key: str = ""
+    livekit_api_secret: str = ""
+    voice_worker_secret: str = ""
+    voice_agent_name: str = "caredeploy-voice"
+    voice_token_ttl_seconds: int = 600
+
+    @property
+    def voice_missing(self) -> list[str]:
+        pairs = {
+            "LIVEKIT_URL": self.livekit_url,
+            "LIVEKIT_API_KEY": self.livekit_api_key,
+            "LIVEKIT_API_SECRET": self.livekit_api_secret,
+            "VOICE_WORKER_SECRET": self.voice_worker_secret,
+        }
+        return [k for k, v in pairs.items() if not v]
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

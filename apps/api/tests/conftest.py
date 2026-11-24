@@ -32,7 +32,7 @@ def _clean_tables(_database: None) -> None:
     url = make_url(get_settings().database_url).set(drivername="postgresql")
     with psycopg.connect(url.render_as_string(False), autocommit=True) as conn:
         conn.execute(
-            "TRUNCATE clinics, operating_hours, appointment_types, scheduling_policies, "
+            "TRUNCATE call_events, call_sessions, clinics, operating_hours, appointment_types, scheduling_policies, "
             "agent_configs, config_versions, patients CASCADE"
         )
 

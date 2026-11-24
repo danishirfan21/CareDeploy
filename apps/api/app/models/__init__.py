@@ -14,8 +14,11 @@ from app.models.scheduling import (
     PatientAuthorization,
     Proposal,
 )
+from app.models.voice import CallEvent, CallSession
 
 __all__ = [
+    "CallEvent",
+    "CallSession",
     "Appointment",
     "AppointmentEvent",
     "Operation",
