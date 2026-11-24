@@ -33,6 +33,10 @@ The message shown beside each level is fixed text. It never says "ready", "safe"
 
 - Not a clinical-safety, privacy or regulatory assessment. The project is not HIPAA compliant.
 - Not a statement about live voice behavior while Mode B and Mode C are not run.
-- Not an approval workflow. Nothing in the product is gated on it yet; it is information for the person deciding.
+- Not an approval workflow. Since M5 the server uses the same evidence to allow or refuse promoting a version to the Simulated Live environment (see [deployments.md](deployments.md)); the client cannot override it. It is still information for the person deciding, with one operator and no approvals.
 
 Open live-verification items are tracked in `verification-debt.md`.
+
+## Use in deployment (M5)
+
+Promotion and rollback recompute eligibility on the server from this evidence: a published version, a completed full-suite workflow run with every scenario passed, no critical failure, evidence from the current scenario suite and recent (default 30 days). Rollback also needs a previously deployed target. Passing means the workflow simulation passed, nothing more; live audio verification stays pending.

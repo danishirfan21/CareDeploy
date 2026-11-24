@@ -36,3 +36,10 @@ Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheCompone
 - `app/api/evals.py` and `app/schemas/evals.py`: typed routes under `/api/clinics/{id}/evaluations/...`; runs execute in a separate worker process (`python -m app.evals.worker`).
 - Migration `0005_evaluations`: `eval_runs`, `eval_scenario_results`, `eval_events`, immutable once a run is terminal.
 - Scenarios are JSON files in `evals/scenarios/`. Details: `evaluations.md`, `evaluation-scenarios.md`, `deployment-readiness.md`, `verification-debt.md`.
+
+## M5 operations and deployment
+- Migration `0006_operations`: `deployments` (one `active` row per clinic and environment, enforced by a partial unique index; composite FK keeps the version in the same clinic), append-only `deployment_events`, and `call_sessions.deployment_id` / `outcome_class` / `task_type` / `classified_at`. Triggers refuse deletes and any change to a deployment other than active to superseded; events are immutable.
+- `app/deploy/service.py`: assessment (reuses the M4 readiness data), promote and rollback under a clinic row lock with compare-and-swap and clinic-scoped idempotency keys. `app/api/deployments.py` exposes it.
+- `app/ops/`: pure outcome classification (`classify.py`), redaction (`redact.py`), cost estimation from a rates file (`pricing.py`), call list/detail (`calls.py`) and metrics (`metrics.py`). `app/api/ops.py` exposes `/calls`, `/calls/{id}` and `/call-metrics`.
+- `create_session` resolves the **active deployment** and pins `config_version` and `deployment_id` on the session.
+- Details: `operations.md`, `deployments.md`, `observability.md`.

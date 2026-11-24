@@ -6,7 +6,7 @@
 
 | Event | Result |
 | --- | --- |
-| Browser `POST /api/clinics/{id}/voice/sessions` | `created`. 503 `voice_not_configured` (lists the missing variables) if LiveKit settings are absent; 409 `clinic_not_configured` if the clinic has no published version; 404 for an unknown clinic. |
+| Browser `POST /api/clinics/{id}/voice/sessions` | `created`. 503 `voice_not_configured` (lists the missing variables) if LiveKit settings are absent; 409 `clinic_not_configured` if the clinic has no published version; 409 `no_active_deployment` if a version is published but none has been evaluated and promoted (M5); 404 for an unknown clinic. |
 | Worker claim | `active`, `started_at` set. One claim per session. |
 | Browser end before the worker claimed | `abandoned`, or `failed` with `error=connection_failed`. `microphone_denied` records `abandoned` with that error. |
 | Browser end while active | `completed`, `ended_by=browser`. The worker may still add its outcome. |
@@ -42,3 +42,8 @@ Illegal transitions raise `InvalidTransition` (see `voice_agent/states.py`). A t
 | Provider error | Recorded as an `error` event; the conversation moves to `recovering` if recoverable, otherwise the call fails with a reason. |
 | Backend unreachable for events | Events stay queued and are retried; the call outcome records `event_flush_failures`. |
 | Scheduling timeout or 5xx during a change | Treated as unknown, reconciled with the same idempotency key. See [voice-tools.md](voice-tools.md). |
+
+## Deployment pinning and classification (M5)
+
+- A new session uses the clinic's **active deployment**, not the latest published version, and stores `config_version` and `deployment_id`. The worker claim returns the stored version, so promotions and rollbacks never change a call already in progress.
+- When a session reaches a terminal state, its outcome is classified from persisted evidence (the scheduling ledger, status and events) into `completed`, `escalated`, `failed`, `abandoned`, `interrupted` or `unknown`. Sessions that have not ended have no class. See [operations.md](operations.md).

@@ -12,6 +12,7 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M2.5 | Stitch UI integration (frontend only) | Done |
 | M3 | LiveKit voice agent and Playground | Partially complete: built and tested without audio; live voice verification blocked on credentials |
 | M4 | Evaluation engine: 20 scenarios, workflow simulation, readiness and regression views | Done for workflow simulation. LLM and real-audio modes are not run (no approved credentials) |
+| M5 | Call operations, metrics, cost estimates, Simulated Live deployment pointer with rollback | Built and tested on simulated data. Live audio and real cost rates are not verified |
 
 What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow and Docker Compose setup have not been run yet.
 
@@ -123,6 +124,9 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 | [`docs/evaluations.md`](docs/evaluations.md) | Evaluation modes, isolation, runner, API, persistence |
 | [`docs/evaluation-scenarios.md`](docs/evaluation-scenarios.md) | The twenty scenarios and what each asserts |
 | [`docs/deployment-readiness.md`](docs/deployment-readiness.md) | Readiness levels and how to read them |
+| [`docs/operations.md`](docs/operations.md) | Call list and detail, outcome classification |
+| [`docs/deployments.md`](docs/deployments.md) | Promote, rollback, eligibility, concurrency, history |
+| [`docs/observability.md`](docs/observability.md) | Metric definitions, cost estimates, redaction |
 | [`docs/verification-debt.md`](docs/verification-debt.md) | Built but not yet verified live |
 | [`docs/implementation-status.md`](docs/implementation-status.md) | What was verified and what was not |
 | [`docs/product-spec.md`](docs/product-spec.md) | Product specification |
@@ -132,8 +136,9 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 - Verification is simulated (no real identity proofing, no staff roles), and there is no integration with an external EHR.
 - Evaluations: only the deterministic workflow simulation runs. The LLM-conversation and real-audio modes show "Not run" until credentials and spend are approved, so a passing result does not show that a model or speech behaves correctly.
 - Voice: browser microphone only (no telephony). Live calls need LiveKit and speech/LLM credentials and incur paid usage; they have not been run. Not HIPAA compliant.
+- Deployment is a simulated pointer ("Simulated Live") with one operator and no approvals; it deploys nothing externally. Cost figures are estimates that need a configured rates file; none ship. Not production ready.
 - One bookable resource per clinic: no providers or rooms.
 - The M1 configuration endpoints are unauthenticated.
-- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. The Activity page lists persisted evaluation runs; its Calls tab has no call list yet.
+- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. Activity has a Calls tab (persisted calls, filters, details, metrics) and an Evaluations tab.
 
 See [`docs/implementation-status.md`](docs/implementation-status.md) for the full list.

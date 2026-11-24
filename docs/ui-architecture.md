@@ -87,3 +87,9 @@ visual comparison, not a pixel diff, so exact spacing and type metrics differ in
 - M4 (done, see `evaluations.md`): the Evaluations page polls a run once a second while it is queued or running, shows persisted results, and reruns one scenario as a linked run. Mode B and C appear as "Not run" with the reason.
 - M5: populate `ActivityList` / `ActivityDetail` from stored calls and evaluation runs.
 - Virtual-keyboard behaviour was not tested on a real device.
+
+## M5: Activity, call detail and deployment
+
+- Activity has two tabs, Calls and Evaluations; no new top-level navigation. The Calls tab (`components/activity/calls-panel.tsx`) has a clinic selector, outcome, date and search filters, pagination and three compact metrics. "Show details" reveals the other counts and the cost line. Empty, loading and error states are explicit.
+- `/activity/calls/[id]` shows Summary, Conversation, Agent actions and a collapsed Technical details section. Missing data reads "Unavailable". Links lead from a failed action to its operation, configuration version, deployment and the latest evaluation (`/evaluations?clinic=&run=`).
+- Deployment controls live in wizard step 5 (`components/wizard/deployment-panel.tsx`): readiness checks from the server, a Promote button enabled only when the server says eligible, a rollback target select with a confirmation panel, and a history disclosure. The clinic page shows a one-line deployment summary. The environment is labelled "Simulated Live".
