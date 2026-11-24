@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { ClinicSelector } from "@/components/clinic-selector";
 import {
   CategoryGroupCard,
@@ -21,12 +21,18 @@ import { useFetch } from "@/lib/use-fetch";
 const message = (e: unknown) =>
   e instanceof Error ? e.message : "Something went wrong";
 
-export default function Evaluations() {
-  const [clinicId, setClinicId] = useState("");
+export default function Evaluations({
+  searchParams,
+}: {
+  searchParams: Promise<{ clinic?: string; run?: string }>;
+}) {
+  // Deep link from a call: /evaluations?clinic=<id>&run=<id>
+  const link = use(searchParams);
+  const [clinicId, setClinicId] = useState(link.clinic ?? "");
   const [version, setVersion] = useState(""); // "" = latest published
   const [mode, setMode] = useState<EvalMode>("workflow");
   const [scope, setScope] = useState("all"); // "all" or a category id
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(link.run ?? null);
   const [run, setRun] = useState<EvalRunDetail | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);

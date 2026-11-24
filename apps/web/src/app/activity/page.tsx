@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CallsPanel } from "@/components/activity/calls-panel";
 import { ClinicSelector } from "@/components/clinic-selector";
 import {
   CategoryGroupCard,
@@ -107,8 +108,9 @@ export default function Activity() {
   const [tab, setTab] = useState<Tab>("calls");
   const [clinicId, setClinicId] = useState("");
   const [evalCount, setEvalCount] = useState(0);
+  const [callCount, setCallCount] = useState(0);
   const tabs: { id: Tab; label: string; count: number }[] = [
-    { id: "calls", label: "Calls", count: 0 },
+    { id: "calls", label: "Calls", count: callCount },
     { id: "evaluations", label: "Evaluations", count: evalCount },
   ];
   return (
@@ -145,13 +147,11 @@ export default function Activity() {
       </div>
       <div role="tabpanel" id="activity-panel" aria-labelledby={`tab-${tab}`}>
         {tab === "calls" ? (
-          <EmptyState
-            testId="unavailable"
-            icon={<Icon name="activity" />}
-            title="No calls yet"
-          >
-            Call history appears here once calls are made from the Playground.
-          </EmptyState>
+          <CallsPanel
+            clinicId={clinicId}
+            onClinic={setClinicId}
+            onCount={setCallCount}
+          />
         ) : (
           <EvaluationActivity
             clinicId={clinicId}

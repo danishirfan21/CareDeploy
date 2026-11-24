@@ -9,18 +9,19 @@ import { ButtonLink, Notice, PageHeader } from "@/components/ui";
 
 export function ClinicDetail({ id }: { id: string }) {
   const { data, error, loading } = useFetch(`clinic:${id}`, async () => {
-    const [clinic, cfg, versions] = await Promise.all([
+    const [clinic, cfg, versions, deployment] = await Promise.all([
       api.getClinic(id),
       api.getConfig(id),
       api.listVersions(id),
+      api.getDeployment(id).catch(() => null),
     ]);
-    return { clinic, cfg, versions };
+    return { clinic, cfg, versions, deployment };
   });
 
   if (loading) return <p className="text-sm text-muted">Loading clinic…</p>;
   if (error || !data)
     return <Notice tone="error">Could not load clinic: {error}</Notice>;
-  const { clinic, cfg, versions } = data;
+  const { clinic, cfg, versions, deployment } = data;
 
   return (
     <>
@@ -79,8 +80,12 @@ export function ClinicDetail({ id }: { id: string }) {
         </ul>
       )}
       <p className="mb-8 text-xs text-muted">
-        Published versions are immutable snapshots. Voice deployment is not
-        available yet.
+        Published versions are immutable snapshots.{" "}
+        <span data-testid="deployment-summary">
+          {deployment?.active
+            ? `Version ${deployment.active.config_version} is active in ${deployment.environment_label}.`
+            : "No version is active yet. Evaluate a version, then deploy it from the configuration review step."}
+        </span>
       </p>
 
       <h2 className="mb-3 text-xl font-medium">Current draft</h2>

@@ -5,7 +5,14 @@ import type {
   ConfigResponse,
   ConfigVersion,
   ConfigVersionSummary,
+  CallDetail,
   CallEvent,
+  CallList,
+  CallMetrics,
+  DeploymentAssessment,
+  DeploymentEvent,
+  DeploymentRead,
+  DeploymentState,
   DbHealthResponse,
   EvalCatalog,
   EvalMode,
@@ -157,5 +164,75 @@ export const api = {
   evalReadiness: (clinicId: string, version?: number) =>
     apiFetch<EvalReadiness>(
       `/clinics/${clinicId}/evaluations/readiness${version ? `?config_version=${version}` : ""}`,
+    ),
+
+  // Call operations (M5)
+  listCalls: (
+    clinicId: string,
+    q: {
+      outcome?: string;
+      date_from?: string;
+      date_to?: string;
+      q?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries(q))
+      if (v !== undefined && v !== "") p.set(k, String(v));
+    return apiFetch<CallList>(`/clinics/${clinicId}/calls?${p.toString()}`);
+  },
+  getCall: (clinicId: string, callId: string) =>
+    apiFetch<CallDetail>(`/clinics/${clinicId}/calls/${callId}`),
+  callMetrics: (clinicId: string, from?: string, to?: string) => {
+    const p = new URLSearchParams();
+    if (from) p.set("date_from", from);
+    if (to) p.set("date_to", to);
+    return apiFetch<CallMetrics>(
+      `/clinics/${clinicId}/call-metrics?${p.toString()}`,
+    );
+  },
+
+  // Deployments (M5)
+  getDeployment: (clinicId: string) =>
+    apiFetch<DeploymentState>(`/clinics/${clinicId}/deployment`),
+  deploymentHistory: (clinicId: string) =>
+    apiFetch<DeploymentEvent[]>(`/clinics/${clinicId}/deployment/history`),
+  deploymentReadiness: (
+    clinicId: string,
+    version: number,
+    action: "promote" | "rollback" = "promote",
+  ) =>
+    apiFetch<DeploymentAssessment>(
+      `/clinics/${clinicId}/deployment/readiness?config_version=${version}&action=${action}`,
+    ),
+  promote: (
+    clinicId: string,
+    version: number,
+    expectedActive: number | null,
+    key: string,
+  ) =>
+    apiFetch<DeploymentRead>(
+      `/clinics/${clinicId}/deployment/promote`,
+      json("POST", {
+        config_version: version,
+        expected_active_version: expectedActive,
+        idempotency_key: key,
+      }),
+    ),
+  rollback: (
+    clinicId: string,
+    version: number,
+    expectedActive: number | null,
+    key: string,
+  ) =>
+    apiFetch<DeploymentRead>(
+      `/clinics/${clinicId}/deployment/rollback`,
+      json("POST", {
+        target_version: version,
+        expected_active_version: expectedActive,
+        idempotency_key: key,
+      }),
     ),
 };

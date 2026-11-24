@@ -215,7 +215,7 @@ export default function Playground() {
         {call.phase === "ended" && call.snapshot && (
           <CallResult
             session={call.snapshot}
-            detailsHref={`/activity/calls/${call.snapshot.call_session_id}`}
+            detailsHref={`/activity/calls/${call.snapshot.call_session_id}?clinic=${call.snapshot.clinic_id}`}
           />
         )}
       </section>

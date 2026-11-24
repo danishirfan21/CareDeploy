@@ -339,3 +339,213 @@ export interface EvalReadiness {
   notes: string[];
   modes: Record<EvalMode, EvalModeReadiness>;
 }
+
+// ---------------------------------------------------------------- Operations (M5) ----------
+export type OutcomeClass =
+  | "completed"
+  | "escalated"
+  | "failed"
+  | "abandoned"
+  | "interrupted"
+  | "unknown";
+
+export interface CallListItem {
+  id: string;
+  clinic_id: string;
+  clinic_name: string;
+  started_at: string;
+  status: string;
+  outcome_class: OutcomeClass | null;
+  outcome_label: string;
+  task_type: string | null;
+  task_label: string | null;
+  duration_seconds: number | null;
+  config_version: number;
+}
+
+export interface CallList {
+  items: CallListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface TranscriptTurnOut {
+  event_id: string;
+  seq: number;
+  speaker: "caller" | "agent";
+  text: string;
+  interrupted: boolean;
+  occurred_at: string;
+}
+
+export interface OperationRef {
+  id: string;
+  operation_type: string;
+  status: string;
+  appointment_id: string | null;
+}
+
+export interface AgentAction {
+  call_id: string;
+  name: string;
+  label: string;
+  status: string;
+  succeeded: boolean;
+  code: string | null;
+  message: string | null;
+  error_category: string | null;
+  error_category_label: string | null;
+  operation_id: string | null;
+  operation: OperationRef | null;
+  latency_ms: number | null;
+  started_at: string | null;
+  finished_at: string | null;
+  args: Record<string, unknown> | null;
+}
+
+export interface DeploymentRef {
+  id: string;
+  action: string;
+  config_version: number;
+  activated_at: string;
+  status: string;
+}
+
+export interface EvaluationRef {
+  run_id: string;
+  status: string;
+  finished_at: string | null;
+}
+
+export interface CallDetail {
+  id: string;
+  clinic_id: string;
+  clinic_name: string;
+  agent_name: string | null;
+  config_version: number;
+  status: string;
+  agent_reported_outcome: string | null;
+  outcome_class: OutcomeClass | null;
+  outcome_label: string;
+  outcome_reason: string | null;
+  task_type: string | null;
+  task_label: string | null;
+  created_at: string;
+  started_at: string | null;
+  ended_at: string | null;
+  duration_seconds: number | null;
+  ended_by: string | null;
+  escalation_reason: string | null;
+  error: string | null;
+  summary: string | null;
+  operations: OperationRef[];
+  deployment: DeploymentRef | null;
+  evaluation: EvaluationRef | null;
+  transcript: TranscriptTurnOut[];
+  actions: AgentAction[];
+  technical: Record<string, unknown>;
+}
+
+export interface MetricRate {
+  numerator: number;
+  denominator: number;
+  value: number | null;
+  low_sample: boolean;
+  definition: string;
+}
+
+export interface CostSummary {
+  estimate: true;
+  currency: string;
+  available: boolean;
+  calls_with_cost: number;
+  calls_without_cost: number;
+  total: string | null;
+  per_call: string | null;
+  per_completed_task: string | null;
+  completed_with_cost: number;
+  reason: string | null;
+  note: string;
+}
+
+export interface CallMetrics {
+  clinic_id: string;
+  timezone: string;
+  from_date: string;
+  to_date: string;
+  total_calls: number;
+  in_progress: number;
+  classified_calls: number;
+  by_outcome: Record<string, number>;
+  completion: MetricRate;
+  escalation: MetricRate;
+  failure: MetricRate;
+  average_duration_seconds: number | null;
+  calls_with_duration: number;
+  average_duration_completed_seconds: number | null;
+  tools: {
+    finished: number;
+    succeeded: number;
+    failed: number;
+    uncertain: number;
+    failure_rate: MetricRate;
+  };
+  cost: CostSummary;
+  notes: string[];
+}
+
+export interface DeploymentRead {
+  id: string;
+  clinic_id: string;
+  config_version: number;
+  environment: string;
+  environment_label: string;
+  status: "active" | "superseded";
+  action: "seed" | "promote" | "rollback";
+  activated_at: string;
+  deactivated_at: string | null;
+  actor: string;
+  readiness_level: string;
+  restored_from_id: string | null;
+}
+
+export interface DeploymentState {
+  clinic_id: string;
+  environment: string;
+  environment_label: string;
+  active: DeploymentRead | null;
+  latest_published_version: number | null;
+  note: string;
+}
+
+export interface DeploymentEvent {
+  id: string;
+  deployment_id: string;
+  kind: "seeded" | "promoted" | "rolled_back";
+  from_version: number | null;
+  to_version: number;
+  actor: string;
+  occurred_at: string;
+  summary: string;
+}
+
+export interface DeploymentCheck {
+  id: string;
+  passed: boolean;
+  message: string;
+}
+
+export interface DeploymentAssessment {
+  clinic_id: string;
+  config_version: number;
+  action: "promote" | "rollback" | "none";
+  eligible: boolean;
+  decision: "allowed" | "blocked";
+  headline: string;
+  live_verification: string;
+  live_verification_message: string;
+  checks: DeploymentCheck[];
+  active_version: number | null;
+  evaluated_run_id: string | null;
+}

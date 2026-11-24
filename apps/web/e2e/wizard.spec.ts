@@ -147,7 +147,7 @@ test("create a clinic, complete all five steps, save, reopen and publish", async
     "Version 1 published",
   );
   await expect(page.getByTestId("published-notice")).toContainText(
-    "No live voice agent",
+    "Evaluate it, then deploy it",
   );
   await page.getByRole("link", { name: "View clinic" }).click();
 

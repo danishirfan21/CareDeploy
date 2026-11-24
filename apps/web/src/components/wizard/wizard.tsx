@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ConfigSummary } from "@/components/config-summary";
 import { Card } from "@/components/primitives";
+import { DeploymentPanel } from "./deployment-panel";
 import { WizardNavigation, WizardProgress } from "./wizard-parts";
 import { ButtonLink, Notice, PageHeader } from "@/components/ui";
 import { ApiError, api } from "@/lib/api/client";
@@ -148,7 +149,7 @@ function WizardBody({
     <>
       <PageHeader
         title={title}
-        subtitle="Configuration draft. Nothing is live until later milestones."
+        subtitle="Configure the agent, publish a version, then deploy it."
       />
 
       <Card className="p-5 md:p-8">
@@ -224,9 +225,15 @@ function WizardBody({
               <ConfigSummary config={config} />
               <p className="text-xs text-muted">
                 Publishing saves an immutable, numbered version of this
-                configuration. It does not make a live voice agent available;
-                that comes in later milestones.
+                configuration. A published version is used for calls only after
+                it is evaluated and deployed below.
               </p>
+              {id && (
+                <DeploymentPanel
+                  key={`${id}-${published?.version ?? 0}`}
+                  clinicId={id}
+                />
+              )}
             </div>
           )}
 
@@ -238,8 +245,8 @@ function WizardBody({
                   <strong className="font-medium">
                     Version {published.version} published.
                   </strong>{" "}
-                  It is now an immutable snapshot. No live voice agent is
-                  available yet.
+                  It is now an immutable snapshot. Evaluate it, then deploy it
+                  from the Deployment section.
                 </p>
                 <p className="mt-2">
                   <Link

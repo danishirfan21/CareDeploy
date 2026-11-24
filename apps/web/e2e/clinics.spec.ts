@@ -108,7 +108,7 @@ test("create a clinic, complete the wizard, save, reopen and publish", async ({
     "Version 1 published",
   );
   await expect(page.getByTestId("published-notice")).toContainText(
-    "No live voice agent",
+    "Evaluate it, then deploy it",
   );
 
   // Visible on the clinic page and the list.
