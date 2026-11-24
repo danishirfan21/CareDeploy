@@ -1,5 +1,29 @@
 # Implementation status
 
+## M5 - Operations, deployment and observability (2026-11-25): BUILT AND TESTED ON SIMULATED DATA; NOT PUSHED; live audio, real cost rates and multi-operator use NOT VERIFIED
+
+Activity now has a real Calls tab (list, filters, search, pagination, details, three compact metrics with the rest behind "Show details"). Outcomes are classified from persisted evidence (the scheduling ledger, call status and events), never from the agent's wording. A "Simulated Live" deployment pointer selects the configuration version that new voice sessions use. Promotion and rollback are decided on the server from the M4 readiness evidence, under a clinic row lock with compare-and-swap and clinic-scoped idempotency keys. History is append-only. See `operations.md`, `deployments.md`, `observability.md`.
+
+### Verified (actually executed)
+- Backend: ruff, ruff format and strict mypy (86 files) clean.
+- Backend pytest, one full run: 215 passed, 2 failed, in 32 minutes. The two failures were the M4 runner's "no leftover scratch database" checks, caused by scratch databases left by evaluation runs I had killed. After dropping them, `tests/test_evals_runner.py` passed 10 of 10. I did **not** run the whole suite a second time, so there is no single all-green run. The new 0006 migration test (4 of 4 in `test_migrations.py`) was added after that run.
+- New backend tests: `test_ops_classify.py` (15), `test_ops_calls.py` (12), `test_deployments.py` (16, passed across separate runs), plus one 0006 upgrade/downgrade test.
+- A real bug found by the concurrency test and fixed: the stale-run sweep committed while the clinic lock was held, releasing it. Concurrent promotions then reached the unique index and returned 503. The sweep now runs before the lock is taken.
+- Voice service: 9 tests passed. eslint, tsc, prettier and `next build` pass.
+- Playwright: first full run 39 passed, 6 failed; second full run 42 passed, 3 failed. After fixes, the affected spec files passed on reruns (`evaluations`, `operations`, `voice`: 19 tests, 18 passed, then the one remaining voice test fixed and `voice.spec.ts` passed 7 of 7). There was **no** single clean full Playwright run after the final fixes.
+- The 6 first-run failures were four stale M3/M4-era assertions (placeholder text, call-detail URL and regions) and two bugs in the new e2e spec (an empty-state clinic name that does not exist, and appointment-type ids copied between clinics).
+- Migration `0006_operations` is additive. It was checked by `alembic check`, an upgrade/downgrade round trip with an existing call row, and `test_migrations.py`.
+
+### Not verified
+- Live voice with a promoted deployment (VD-14), real provider usage and cost rates (VD-15), multiple operators (VD-16), the evidence-age policy (VD-17), metrics at realistic volume and time-zone edges (VD-18), and classification on real calls (VD-19). See `verification-debt.md`.
+- No prices ship with CareDeploy. Without `COST_RATES_FILE`, cost shows "Cost unavailable: provider usage data was not recorded."
+- GitHub Actions and Docker Compose have never run (VD-10, VD-11).
+
+### Notes
+- The deployment environment is labelled "Simulated Live". The deployment step is a simulated pointer: it deploys nothing externally, and the single operator has no approvals. This is not a production release or a compliance claim.
+- Seed and test fixtures activate sample clinics with `action = seed`, recorded as "not evaluated"; the M4-era voice-session tests needed this so they could still create sessions.
+- Not pushed. M6 not started.
+
 ## M4 - Conversation evaluation engine (2026-11-24): COMPLETE for workflow simulation; LLM and real-audio modes NOT RUN
 
 Twenty version-controlled scenarios (`evals/scenarios/`) drive the real voice-agent `Toolbox`, `SchedulingClient`, `build_instructions` and the real M2 scheduling API on PostgreSQL. Only Mode A (workflow simulation) exists as a runnable mode. Mode B (LLM conversation) is shown as Not run: no provider is implemented, and it needs `EVAL_LLM_API_KEY` plus `EVAL_LLM_APPROVED=true`; nothing was billed. Mode C (real audio) has no runner. Live voice verification from M3 is still outstanding (see `verification-debt.md`). Pass rates of different modes are never combined.

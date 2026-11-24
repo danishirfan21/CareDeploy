@@ -128,3 +128,60 @@ def test_evaluation_migration_is_additive_and_reversible(scratch: str) -> None:
         assert conn.execute("SELECT to_regclass('public.eval_runs')").fetchone() == (None,)
         assert conn.execute("SELECT to_regclass('public.appointments')").fetchone() != (None,)
     assert _alembic("upgrade", "head").returncode == 0
+
+
+def test_operations_migration_keeps_calls_and_is_reversible(scratch: str) -> None:
+    """0006 adds deployments and call-classification columns without touching existing rows,
+    and its downgrade removes exactly what it added."""
+    assert _alembic("upgrade", "0005").returncode == 0
+    clinic, call = uuid.uuid4(), uuid.uuid4()
+    with psycopg.connect(scratch, autocommit=True) as conn:
+        conn.execute(
+            "INSERT INTO clinics (id, name, specialty, location, timezone, phone, email) "
+            "VALUES (%s, 'Legacy Calls', 's', 'l', 'America/Chicago', '555', 'a@b.example')",
+            (clinic,),
+        )
+        conn.execute(
+            "INSERT INTO config_versions (id, clinic_id, version, snapshot) "
+            "VALUES (%s, %s, 1, '{}'::jsonb)",
+            (uuid.uuid4(), clinic),
+        )
+        conn.execute(
+            "INSERT INTO call_sessions (id, clinic_id, config_version, room_name, status, "
+            "dev_actor, token_expires_at) VALUES (%s, %s, 1, 'room-legacy', 'completed', "
+            "'local-dev-operator', now())",
+            (call, clinic),
+        )
+        assert conn.execute("SELECT to_regclass('public.deployments')").fetchone() == (None,)
+
+    assert _alembic("upgrade", "head").returncode == 0
+    with psycopg.connect(scratch) as conn:
+        names = {
+            r[0]
+            for r in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
+            )
+        }
+        assert {"deployments", "deployment_events"} <= names
+        # The pre-existing call is untouched and not yet classified.
+        row = conn.execute(
+            "SELECT status, deployment_id, outcome_class, task_type, classified_at "
+            "FROM call_sessions WHERE id = %s",
+            (call,),
+        ).fetchone()
+        assert row == ("completed", None, None, None, None)
+
+    assert _alembic("downgrade", "0005").returncode == 0
+    with psycopg.connect(scratch) as conn:
+        assert conn.execute("SELECT to_regclass('public.deployments')").fetchone() == (None,)
+        cols = {
+            r[0]
+            for r in conn.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name = 'call_sessions'"
+            )
+        }
+        assert not {"deployment_id", "outcome_class", "task_type", "classified_at"} & cols
+        assert conn.execute("SELECT count(*) FROM call_sessions").fetchone() == (1,)
+
+    assert _alembic("upgrade", "head").returncode == 0
