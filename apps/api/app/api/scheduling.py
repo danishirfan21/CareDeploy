@@ -76,13 +76,13 @@ def _respond(outcome: Outcome) -> JSONResponse:
 
 
 # ---- patients & verification (simulated) -------------------------------------------------
-@router.get("/patients", response_model=list[PatientSummary], summary="Look up synthetic patients")
+@router.get("/patients", response_model=list[PatientSummary], summary="Look up patients")
 async def lookup_patients(
     clinic_id: uuid.UUID,
     name: Annotated[str | None, Query(min_length=2, max_length=100)] = None,
     phone: Annotated[str | None, Query(min_length=4, max_length=40)] = None,
 ) -> list[PatientSummary]:
-    """Demo directory of fictional patients. Returns id and name only, never other fields."""
+    """Patient directory. Returns id and name only, never other fields."""
     if not name and not phone:
         raise InvalidInput("Provide name or phone.")
     async with get_sessionmaker()() as session:
@@ -99,7 +99,7 @@ async def lookup_patients(
 @router.post(
     "/patients/{patient_id}/verify",
     response_model=VerifyResponse,
-    summary="Verify a synthetic patient (simulated) and receive an expiring authorization",
+    summary="Verify a patient (simulated) and receive an expiring authorization",
 )
 async def verify_patient(
     clinic_id: uuid.UUID,

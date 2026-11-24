@@ -29,7 +29,7 @@ PROPOSAL_STATUSES = ("pending", "confirmed", "executed", "rejected")
 
 
 class Patient(Base):
-    """Synthetic patient. Demo verification only; see docs/authorization.md."""
+    """Sample patient. Simulated verification only; see docs/authorization.md."""
 
     __tablename__ = "patients"
     __table_args__ = (

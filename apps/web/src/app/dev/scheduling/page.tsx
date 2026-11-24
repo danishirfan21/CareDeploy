@@ -10,7 +10,7 @@ import {
 } from "@/components/ui";
 
 /**
- * DEVELOPMENT / TEST ONLY. Exercises the M2 scheduling API against synthetic patients.
+ * DEVELOPMENT / TEST ONLY. Exercises the M2 scheduling API against sample patients.
  * Not a patient portal and not part of the product navigation.
  */
 
@@ -270,7 +270,7 @@ export default function DevScheduling() {
     <div data-testid="dev-scheduling">
       <PageHeader
         title="Scheduling test console"
-        subtitle="Development and test only. Synthetic patients, simulated verification. Not a patient portal."
+        subtitle="Development and test only. Sample patients, simulated verification. Not a patient portal."
       />
       <div className="space-y-6 text-sm">
         {error && (
@@ -312,7 +312,7 @@ export default function DevScheduling() {
 
         {info && (
           <section className="space-y-2">
-            <h2 className="font-medium">2. Synthetic patient</h2>
+            <h2 className="font-medium">2. Patient</h2>
             <div className="flex gap-2">
               <input
                 aria-label="Patient name search"

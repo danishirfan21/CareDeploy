@@ -12,7 +12,7 @@ function futureTuesday(): string {
   return d.toISOString().slice(0, 10);
 }
 
-test("verify a synthetic patient, book through proposal/confirm, then cancel", async ({
+test("verify a patient, book through proposal/confirm, then cancel", async ({
   page,
   request,
 }) => {

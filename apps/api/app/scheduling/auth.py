@@ -1,6 +1,6 @@
 """Simulated patient verification and server-issued, expiring authorization.
 
-This is a demo mechanism with fictional data. It is NOT real-world patient identity proofing.
+This is a simulated mechanism. It is NOT real-world patient identity proofing.
 A client-supplied "verified" flag is never trusted: access requires a bearer token issued by
 `verify_patient`, bound to one clinic and one patient, stored only as a SHA-256 hash.
 """

@@ -72,7 +72,7 @@ def faults() -> Iterator["ScriptedFaults"]:
 
 @pytest.fixture
 async def world(client: AsyncClient, clock: "FakeClock") -> "World":
-    """Both seeded clinics, published, with their synthetic patients."""
+    """Both seeded clinics, published, with their sample patients."""
     from sqlalchemy import select
 
     from app.db.session import get_sessionmaker

@@ -1,9 +1,9 @@
-"""Seed two fictional clinics. Idempotent: existing clinics (by name) are left untouched.
+"""Seed two sample clinics. Idempotent: existing clinics (by name) are left untouched.
 
 Usage: python -m app.seed [--publish]
 
 --publish also publishes each seeded clinic's configuration (required before scheduling works).
-Synthetic patients are always seeded. All data is fictional.
+Sample patients are always seeded.
 """
 
 import asyncio
@@ -145,7 +145,7 @@ LAKESIDE = ClinicConfig(
 )
 
 
-# Fictional demo patients. Verification (simulated): date of birth + last 4 digits of phone.
+# Sample patients. Verification (simulated): date of birth + last 4 digits of phone.
 PATIENTS: dict[str, list[tuple[str, date, str, str]]] = {
     "Northstar Family Medicine": [
         ("Avery Quinn", date(1985, 4, 12), "(512) 555-0101", "avery.quinn@example.test"),
