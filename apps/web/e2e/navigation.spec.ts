@@ -24,8 +24,8 @@ test("home actions and sidebar navigation", async ({ page }) => {
     "Activity",
   ]);
   await nav.getByRole("link", { name: "Playground" }).click();
-  await expect(page.getByTestId("unavailable")).toContainText(
-    "Live voice testing is not yet enabled",
+  await expect(page.getByTestId("idle-state")).toContainText(
+    "Choose a clinic to begin",
   );
   await nav.getByRole("link", { name: "Activity" }).click();
   await expect(page.getByTestId("unavailable")).toContainText("No calls yet");
@@ -47,9 +47,11 @@ test("sidebar collapses", async ({ page }) => {
   await expect(sidebar).toHaveAttribute("data-collapsed", "false");
 });
 
-test("playground shows no fake call or results", async ({ page }) => {
+test("playground shows no call, transcript or result before a call starts", async ({
+  page,
+}) => {
   await page.goto("/playground");
-  await expect(page.getByTestId("unavailable")).toContainText("Not available");
+  await expect(page.getByTestId("idle-state")).toContainText("Choose a clinic");
   await expect(page.getByRole("button", { name: "Start call" })).toBeDisabled();
   await expect(page.getByTestId("transcript")).toHaveCount(0);
   await expect(page.getByTestId("call-outcome")).toHaveCount(0);
@@ -57,6 +59,11 @@ test("playground shows no fake call or results", async ({ page }) => {
     .getByLabel("Clinic")
     .selectOption({ label: "Northstar Family Medicine" });
   await expect(page.getByText(/Draft only|Published v/)).toBeVisible();
+  // A draft-only clinic cannot take a call.
+  await expect(page.getByRole("button", { name: "Start call" })).toBeDisabled();
+  await expect(page.getByTestId("idle-state")).toContainText(
+    "no published configuration",
+  );
 });
 
 test("evaluations shows no fabricated results", async ({ page }) => {

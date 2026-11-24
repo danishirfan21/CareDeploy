@@ -45,7 +45,7 @@ for (const [name, size] of [
           .click();
       }
       await expect(page).toHaveURL(/\/playground$/);
-      await expect(page.getByTestId("unavailable")).toBeVisible();
+      await expect(page.getByTestId("idle-state")).toBeVisible();
     });
   });
 }

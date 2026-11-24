@@ -12,7 +12,8 @@ and tests from M1 and M2 are unchanged.
 | Home workspace | `/` | Welcome and three navigation actions (clinics, playground, evaluations). |
 | Clinics | `/clinics` | Clinic cards from the API. Status pill shows `Draft` or `Published vN`. |
 | Setup wizard | `/clinics/new`, `/clinics/[id]/configure` | Five steps, one visible at a time. Separate route, not inline under the list. |
-| Voice playground | `/playground` | Clinic selector, honest unavailable state, disabled call controls. |
+| Voice playground | `/playground` | Clinic selector, agent version, Start call, connection status, mic control, End call, live transcript, inline tool activity, verification and confirmation states, after-call outcome. Driven by `useCall` (M3). |
+| Call details | `/activity/calls/[id]` | Outcome, duration, transcript, tool activity and operation ids of a finished call. |
 | Evaluations | `/evaluations` | Clinic selector, disabled Run evaluation, honest empty state. |
 | Activity | `/activity` | Calls / Evaluations tabs, both empty until M3/M4 create records. |
 
@@ -77,8 +78,12 @@ visual comparison, not a pixel diff, so exact spacing and type metrics differ in
 
 ## Remaining limitations and integration points
 
-- M3: feed `ConversationTranscript`, `ToolActivity`, `CallOutcome` and `CallControls` from live calls;
-  enable the playground clinic selection.
+- M3 (done, see `voice-agent.md`): the playground feeds `ConversationTranscript`, `ToolActivity` and
+  `CallControls` from the backend event log through `src/lib/voice/use-call.ts` and `fold.ts`. The browser
+  talks to LiveKit only through the `VoiceTransport` interface; Playwright swaps in a no-audio test
+  transport (`NEXT_PUBLIC_VOICE_TEST_TRANSPORT=1`). Technical details stay collapsed; no raw JSON or
+  analytics in the main view. A call list in Activity is not built (call details are reached from the
+  Playground outcome).
 - M4: feed `EvaluationSummary` / `EvaluationGroup` and enable Run evaluation.
 - M5: populate `ActivityList` / `ActivityDetail` from stored calls and evaluation runs.
 - Virtual-keyboard behaviour was not tested on a real device.

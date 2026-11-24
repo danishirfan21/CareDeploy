@@ -10,7 +10,7 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M1 | Multi-clinic management, five-step configuration wizard, immutable published versions | Done |
 | M2 | Scheduling engine, confirmed and idempotent booking, reliability tests | Done |
 | M2.5 | Stitch UI integration (frontend only) | Done |
-| M3 | Voice agent and playground | Not started |
+| M3 | LiveKit voice agent and Playground | Partially complete: built and tested without audio; live voice verification blocked on credentials |
 | M4 | Evaluations | Not started |
 
 What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow and Docker Compose setup have not been run yet.
@@ -22,13 +22,15 @@ What has and has not been verified is tracked in [`docs/implementation-status.md
 - **No double-booking:** enforced by a PostgreSQL exclusion constraint, not only application checks.
 - **Safe state changes:** every booking, reschedule or cancel requires a server-issued authorization, a confirmed proposal bound to the exact details, and an idempotency key.
 - **Recovery:** retries replay stored outcomes, and uncertain outcomes can be reconciled by operation id or key. A success is never reported before commit.
-- **Typed adapter:** a `SchedulingAdapter` interface with one PostgreSQL implementation, ready for the voice agent.
+- **Typed adapter:** a `SchedulingAdapter` interface with one PostgreSQL implementation, used by the voice agent's tools.
+- **Voice agent (M3):** a LiveKit worker with a speech-to-text, LLM and text-to-speech pipeline. It schedules only through the M2 API, runs on the clinic's frozen published configuration, and reports transcripts, tool activity and outcomes to the Playground. See [`docs/voice-agent.md`](docs/voice-agent.md).
 
 ## Architecture
 
 ```
 apps/web   Next.js 16, React 19, TypeScript, Tailwind
 apps/api   FastAPI, async SQLAlchemy 2, Alembic, Pydantic v2
+services/voice-agent   LiveKit Agents worker (Python)
 PostgreSQL 17 (Docker Compose or local binaries)
 ```
 
@@ -72,6 +74,10 @@ To confirm it works, open `/api/health`, `/api/health/db` and the interactive do
 
 `/dev/scheduling` is a development-only page that walks through verify, availability, propose, confirm, book and cancel. It is not linked from the navigation and is not a patient portal.
 
+### Voice agent (needs credentials)
+
+Without LiveKit settings the Playground still loads and reports exactly which variables are missing when you press Start call. To run a live call you need a LiveKit project and a speech/LLM provider key (paid usage), set as described in [`services/voice-agent/README.md`](services/voice-agent/README.md), then start the worker with `python -m voice_agent.worker dev`. Everything else (API, tool layer, UI) is tested without them.
+
 ### Without Docker (Windows)
 
 ```powershell
@@ -110,14 +116,18 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 | [`docs/authorization.md`](docs/authorization.md) | Simulated verification and the confirmation flow |
 | [`docs/idempotency.md`](docs/idempotency.md) | Retry protocol, failure recovery, client guidance |
 | [`docs/ui-architecture.md`](docs/ui-architecture.md) | Stitch integration, components, responsive behavior |
+| [`docs/voice-agent.md`](docs/voice-agent.md) | Voice agent design, trust model, verification status |
+| [`docs/voice-session-lifecycle.md`](docs/voice-session-lifecycle.md) | Call states, events, failure handling |
+| [`docs/voice-tools.md`](docs/voice-tools.md) | Agent tools, result statuses, unknown-outcome recovery |
 | [`docs/implementation-status.md`](docs/implementation-status.md) | What was verified and what was not |
 | [`docs/product-spec.md`](docs/product-spec.md) | Product specification |
 
 ## Limitations
 
 - Verification is simulated (no real identity proofing, no staff roles), and there is no integration with an external EHR.
+- Voice: browser microphone only (no telephony). Live calls need LiveKit and speech/LLM credentials and incur paid usage; they have not been run. Not HIPAA compliant.
 - One bookable resource per clinic: no providers or rooms.
 - The M1 configuration endpoints are unauthenticated.
-- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. Playground, Evaluations and Activity show honest unavailable states until M3/M4.
+- The UI follows the Stitch designs in `design-reference/` (see [`docs/ui-architecture.md`](docs/ui-architecture.md)); fidelity was checked by eye, not by pixel diff. Evaluations and the Activity list show honest unavailable states until M4.
 
 See [`docs/implementation-status.md`](docs/implementation-status.md) for the full list.

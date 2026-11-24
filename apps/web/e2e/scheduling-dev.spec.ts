@@ -1,5 +1,5 @@
-// Runs last (file name sorts after wizard.spec.ts): it publishes the seeded Northstar clinic,
-// and the earlier specs expect the seeded clinics to still be drafts.
+// Independent of spec order: it uses the pre-published sandbox clinic (seeded with --sandbox), so
+// it never publishes or edits the seeded sample clinics other specs expect to be drafts.
 import { expect, test } from "@playwright/test";
 import { api } from "./helpers";
 
@@ -20,9 +20,7 @@ test("verify a patient, book through proposal/confirm, then cancel", async ({
     id: string;
     name: string;
   }[];
-  const north = clinics.find((c) => c.name === "Northstar Family Medicine")!;
-  const pub = await request.post(`${api}/clinics/${north.id}/config/publish`);
-  expect([200, 201, 409]).toContain(pub.status());
+  const north = clinics.find((c) => c.name === "Sandbox Family Clinic")!;
 
   await page.goto("/dev/scheduling");
   await expect(

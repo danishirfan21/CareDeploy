@@ -5,9 +5,12 @@ import type {
   ConfigResponse,
   ConfigVersion,
   ConfigVersionSummary,
+  CallEvent,
   DbHealthResponse,
   HealthResponse,
   ValidationResult,
+  VoiceSession,
+  VoiceSessionCreated,
 } from "./types";
 
 export const API_BASE_URL =
@@ -81,4 +84,25 @@ export const api = {
     apiFetch<ConfigVersion>(`/clinics/${id}/config/publish`, json("POST")),
   listVersions: (id: string) =>
     apiFetch<ConfigVersionSummary[]>(`/clinics/${id}/versions`),
+
+  startVoiceSession: (clinicId: string) =>
+    apiFetch<VoiceSessionCreated>(
+      `/clinics/${clinicId}/voice/sessions`,
+      json("POST"),
+    ),
+  getVoiceSession: (id: string) =>
+    apiFetch<VoiceSession>(`/voice/sessions/${id}`),
+  getVoiceEvents: (id: string, afterSeq?: number) =>
+    apiFetch<{ events: CallEvent[] }>(
+      `/voice/sessions/${id}/events${afterSeq === undefined ? "" : `?after_seq=${afterSeq}`}`,
+    ),
+  endVoiceSession: (
+    id: string,
+    reason:
+      "user_ended" | "connection_failed" | "page_closed" | "microphone_denied",
+  ) =>
+    apiFetch<VoiceSession>(
+      `/voice/sessions/${id}/end`,
+      json("POST", { reason }),
+    ),
 };

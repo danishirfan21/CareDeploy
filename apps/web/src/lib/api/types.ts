@@ -119,3 +119,73 @@ export interface ConfigVersion extends ConfigVersionSummary {
   clinic_id: string;
   config: ClinicConfig;
 }
+
+// ---- Voice sessions (M3) ----
+
+export type CallStatus =
+  "created" | "active" | "completed" | "failed" | "abandoned";
+
+export type CallOutcomeKind =
+  | "appointment_booked"
+  | "appointment_rescheduled"
+  | "appointment_cancelled"
+  | "information_provided"
+  | "escalated"
+  | "no_action"
+  | "failed";
+
+export interface VoiceSessionCreated {
+  call_session_id: string;
+  clinic_id: string;
+  clinic_name: string;
+  agent_name: string;
+  config_version: number;
+  room_name: string;
+  livekit_url: string;
+  token: string;
+  token_expires_at: string;
+  created_at: string;
+  dev_actor: string;
+}
+
+export interface LiveState {
+  transport?: string;
+  conversation?: string;
+  operation?: string;
+  activity?: string;
+  interim_user?: string;
+  agent_name?: string;
+  pending_confirmation?: boolean;
+  verified_patient?: string | null;
+  ended?: boolean;
+}
+
+export interface VoiceSession {
+  call_session_id: string;
+  clinic_id: string;
+  clinic_name: string;
+  agent_name: string;
+  config_version: number;
+  status: CallStatus;
+  outcome: CallOutcomeKind | null;
+  summary: string | null;
+  created_at: string;
+  started_at: string | null;
+  ended_at: string | null;
+  duration_seconds: number | null;
+  ended_by: string | null;
+  escalation_reason: string | null;
+  error: string | null;
+  operation_ids: string[];
+  metrics: Record<string, unknown>;
+  live_state: LiveState;
+  dev_actor: string;
+}
+
+export interface CallEvent {
+  event_id: string;
+  seq: number;
+  kind: "transcript" | "tool" | "state" | "operation" | "error" | "system";
+  occurred_at: string;
+  payload: Record<string, unknown>;
+}

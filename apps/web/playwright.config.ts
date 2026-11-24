@@ -16,19 +16,30 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${WEB_PORT}` },
   webServer: [
     {
-      command: `${python} -m app.testdb caredeploy_e2e --seed --serve ${API_PORT}`,
+      command: `${python} -m app.testdb caredeploy_e2e --seed --sandbox --serve ${API_PORT}`,
       cwd: "../api",
       url: `http://localhost:${API_PORT}/api/health`,
       reuseExistingServer: false,
       timeout: 120_000,
-      env: { CORS_ORIGINS: `http://localhost:${WEB_PORT}` },
+      env: {
+        CORS_ORIGINS: `http://localhost:${WEB_PORT}`,
+        // Test values only: tokens are signed but no LiveKit server exists in e2e.
+        LIVEKIT_URL: "wss://livekit.e2e.invalid",
+        LIVEKIT_API_KEY: "APIe2ekey",
+        LIVEKIT_API_SECRET: "e2e-livekit-secret-long-enough-for-hs256",
+        VOICE_WORKER_SECRET: "e2e-worker-secret",
+      },
     },
     {
       command: `npx next dev -p ${WEB_PORT}`,
       url: `http://localhost:${WEB_PORT}`,
       reuseExistingServer: false,
       timeout: 120_000,
-      env: { NEXT_PUBLIC_API_URL: `http://localhost:${API_PORT}` },
+      env: {
+        NEXT_PUBLIC_API_URL: `http://localhost:${API_PORT}`,
+        // Swaps the browser transport for the controlled test adapter (no audio).
+        NEXT_PUBLIC_VOICE_TEST_TRANSPORT: "1",
+      },
     },
   ],
 });

@@ -1,5 +1,27 @@
 # Implementation status
 
+## M3 - Real-time voice agent (2026-11-24): PARTIALLY COMPLETE, live voice verification blocked
+
+No LiveKit or speech-provider credentials were available, and spending the ambient OpenAI key was not approved, so a real call was never made. Everything around the audio path is built and tested.
+
+### Verified (actually executed)
+- Backend: ruff, ruff format, strict mypy clean. pytest: 97 earlier tests plus 28 new (11 voice session API tests, 17 tool-layer integration tests against the real M2 API and PostgreSQL, including dropped request, dropped response and backend-down recovery with exactly one appointment, clinic isolation and capability gating).
+- Voice service: 9 unit tests (state machines, instruction building for two configurations, no clinic-name branching, event dedupe and redaction), ruff and mypy clean. `voice_agent.worker` imports with livekit-agents 1.8.13.
+- Frontend: eslint, tsc, prettier, `next build` pass. Playwright: 33 passed. New `voice.spec.ts` (7 tests) uses a controlled no-audio transport and drives the real worker channel: full call with transcript, interim text, tool activity, confirmation state, end, outcome and call details; not-configured state; microphone denied; connection failure; mid-call connection loss; mute and keyboard; mobile overflow.
+- Order dependency removed: the scheduling console spec now uses a pre-published `Sandbox Family Clinic` (`--sandbox` seed for e2e only) and is renamed `scheduling-dev.spec.ts`.
+- Migration `0004_voice_sessions` (additive; `call_sessions`, `call_events`).
+
+### Not verified
+- Real LiveKit join, audio, STT/LLM/TTS, barge-in and latency. `worker.py` and `providers.py` are written against the SDK but have never run against a server.
+- `livekit-client` adapter has never connected to a real room.
+- GitHub Actions and Docker Compose still never run (voice service is not yet in the workflow).
+
+### Intermittent M2 concurrency failure: investigated
+`test_many_concurrent_bookings_never_overlap` failed once in about 50 repeated runs. The failing response body was the 503 `dependency_unavailable` message ("Nothing was changed; retry with the same key"), not a 201/409. Probable cause (not proven; the SQLSTATE was not captured): concurrent inserts racing on the exclusion constraint can make PostgreSQL abort one transaction with a deadlock or serialization error, which M2 maps to a retryable 503 rather than `slot_unavailable`. This is safe (nothing changes and a retry with the same key works) but the test asserts only 201/409. M2 logic was not changed; left open.
+
+### Limitations
+Browser microphone only, no telephony. Simulated verification; not HIPAA compliant. Escalation records a request, it does not transfer. Browser follows the call by polling. Activity has no call list yet.
+
 ## M2.5 - Stitch UI integration (2026-11-24)
 
 Frontend only; backend, models and migrations unchanged. See `ui-architecture.md`.

@@ -22,7 +22,12 @@ export function CallControls({
 }: CallControlsProps) {
   const base =
     "flex h-12 min-w-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50";
-  const live = phase === "active" || phase === "connecting";
+  const live =
+    phase === "active" ||
+    phase === "connecting" ||
+    phase === "starting" ||
+    phase === "ending";
+  const micOn = phase === "active";
   return (
     <div
       role="group"
@@ -35,7 +40,7 @@ export function CallControls({
         className={`${base} bg-surface-high/70`}
         aria-pressed={muted}
         aria-label={muted ? "Unmute microphone" : "Mute microphone"}
-        disabled={!live}
+        disabled={!micOn}
         onClick={onToggleMute}
       >
         <Icon name="mic" />
@@ -44,6 +49,7 @@ export function CallControls({
         <button
           type="button"
           className={`${base} bg-danger text-white`}
+          disabled={phase === "ending"}
           onClick={onEnd}
         >
           <Icon name="phoneOff" /> End call

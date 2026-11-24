@@ -40,6 +40,9 @@ export function ConversationMessage({ turn }: { turn: TranscriptTurn }) {
           )}
         </p>
         <p className="text-[15px] leading-6">{turn.text}</p>
+        {turn.interrupted && (
+          <p className="mt-1 font-mono text-[11px] text-muted">interrupted</p>
+        )}
       </div>
     </li>
   );
@@ -65,6 +68,7 @@ const TOOL_TONE = {
   running: "info",
   succeeded: "success",
   failed: "danger",
+  uncertain: "warning",
 } as const;
 
 /** Inline record of one tool execution; technical payload stays collapsed. */
