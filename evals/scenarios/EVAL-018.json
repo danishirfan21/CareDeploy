@@ -1,0 +1,134 @@
+{
+  "id": "EVAL-018",
+  "version": 1,
+  "name": "Unknown outcome after commit",
+  "description": "The backend commits, then fails before answering; the agent finds the committed operation in the ledger.",
+  "category": "failure_escalation",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability",
+      "book_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Reconcile through the operation record and report the real outcome once.",
+    "agent_actions": [
+      "confirm_operation"
+    ],
+    "forbidden_actions": [],
+    "operation_outcome": "One succeeded operation, reported as committed.",
+    "database_changes": "Exactly one new appointment.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S1"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "inject",
+        "fault": {
+          "type": "scheduling_fault",
+          "point": "after_commit",
+          "error": "timeout",
+          "times": 1
+        }
+      },
+      {
+        "kind": "say",
+        "text": "Yes, please book it.",
+        "actor": "caller"
+      },
+      {
+        "kind": "tool",
+        "tool": "confirm_operation",
+        "args": {
+          "caller_words": "Yes, please book it"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "committed"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 1
+      },
+      {
+        "type": "operation_count",
+        "status": "succeeded",
+        "delta": 1
+      },
+      {
+        "type": "single_committed_operation"
+      },
+      {
+        "type": "no_overlapping_appointments"
+      }
+    ],
+    "timeout_seconds": 60
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

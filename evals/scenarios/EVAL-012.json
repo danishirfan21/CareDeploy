@@ -1,0 +1,115 @@
+{
+  "id": "EVAL-012",
+  "version": 1,
+  "name": "Booking outside operating hours",
+  "description": "Closed days have no availability and the backend refuses direct requests for closed or after-hours times.",
+  "category": "scheduling_integrity",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Offer no times on a closed day; the backend rejects out-of-hours bookings.",
+    "agent_actions": [
+      "get_appointment_availability"
+    ],
+    "forbidden_actions": [
+      "confirm_operation"
+    ],
+    "operation_outcome": "None.",
+    "database_changes": "None.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${closed_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/proposals",
+        "clinic": "primary",
+        "id": "after_hours",
+        "as_patient": "p1",
+        "body": {
+          "action": "book",
+          "appointment_type_id": "${standard_type_id}",
+          "start_at": "${after_hours_start}"
+        },
+        "expect": {
+          "ok": false
+        }
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/proposals",
+        "clinic": "primary",
+        "id": "closed_day",
+        "as_patient": "p1",
+        "body": {
+          "action": "book",
+          "appointment_type_id": "${standard_type_id}",
+          "start_at": "${closed_day_start}"
+        },
+        "expect": {
+          "ok": false
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "equals": 0
+      },
+      {
+        "type": "proposal_count",
+        "status": "pending",
+        "equals": 0
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

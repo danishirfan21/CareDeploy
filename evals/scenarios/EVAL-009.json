@@ -1,0 +1,193 @@
+{
+  "id": "EVAL-009",
+  "version": 1,
+  "name": "Slot taken before confirmation",
+  "description": "Another patient books the offered slot after the proposal; the agent's confirmation is rejected and nothing double-books.",
+  "category": "scheduling_integrity",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability",
+      "book_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      },
+      {
+        "key": "p2",
+        "name": "Casey Morgan",
+        "dob": "1990-09-30",
+        "phone": "(512) 555-0122"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Report the slot is no longer available and offer to search again.",
+    "agent_actions": [
+      "propose_booking",
+      "confirm_operation"
+    ],
+    "forbidden_actions": [],
+    "operation_outcome": "The caller's operation does not succeed.",
+    "database_changes": "Only the other patient's appointment exists for that time.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S1"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/proposals",
+        "clinic": "primary",
+        "id": "rival_propose",
+        "as_patient": "p2",
+        "body": {
+          "action": "book",
+          "appointment_type_id": "${standard_type_id}",
+          "start_at": "${slot_first}"
+        },
+        "capture": {
+          "rival_pid": "id",
+          "rival_tok": "confirmation_token"
+        },
+        "expect": {
+          "status": "201"
+        }
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/proposals/${rival_pid}/confirm",
+        "clinic": "primary",
+        "id": "rival_confirm",
+        "as_patient": "p2",
+        "body": {
+          "confirmation_token": "${rival_tok}"
+        },
+        "expect": {
+          "status": "200"
+        }
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/appointments",
+        "clinic": "primary",
+        "id": "rival_book",
+        "as_patient": "p2",
+        "body": {
+          "proposal_id": "${rival_pid}",
+          "appointment_type_id": "${standard_type_id}",
+          "start_at": "${slot_first}"
+        },
+        "idempotency_key": "rival-key-0001",
+        "expect": {
+          "status": [
+            "200",
+            "201"
+          ]
+        }
+      },
+      {
+        "kind": "say",
+        "text": "Yes, please book it.",
+        "actor": "caller"
+      },
+      {
+        "kind": "tool",
+        "tool": "confirm_operation",
+        "args": {
+          "caller_words": "Yes, please book it"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "rejected",
+          "code": "slot_unavailable"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p2",
+        "delta": 1
+      },
+      {
+        "type": "appointment_count",
+        "scope": "clinic",
+        "delta": 1
+      },
+      {
+        "type": "no_overlapping_appointments"
+      },
+      {
+        "type": "no_committed_report"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

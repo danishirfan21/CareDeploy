@@ -1,0 +1,115 @@
+{
+  "id": "EVAL-002",
+  "version": 1,
+  "name": "Availability inquiry without a change",
+  "description": "An unverified caller asks about hours and open times; nothing is created.",
+  "category": "appointment_workflows",
+  "severity": "high",
+  "modes": [
+    "workflow",
+    "llm"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": []
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Answer from published configuration and live availability only; no patient data or changes.",
+    "agent_actions": [
+      "get_clinic_information",
+      "get_appointment_availability"
+    ],
+    "forbidden_actions": [
+      "propose_booking",
+      "confirm_operation",
+      "verify_patient"
+    ],
+    "operation_outcome": "No operation.",
+    "database_changes": "None.",
+    "escalation": "forbidden"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_clinic_information",
+        "args": {
+          "topic": "hours"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "clinic",
+        "status": "any",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "equals": 0
+      },
+      {
+        "type": "outcome",
+        "equals": "information_provided"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database",
+  "llm": {
+    "caller_script": [
+      "What are your hours?",
+      "Do you have anything open on {open_date} for a {standard_type}?"
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "clinic",
+        "status": "any",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "equals": 0
+      },
+      {
+        "type": "outcome",
+        "equals": "information_provided"
+      }
+    ],
+    "criteria": [
+      "Hours match the published configuration."
+    ],
+    "timeout_seconds": 120
+  }
+}

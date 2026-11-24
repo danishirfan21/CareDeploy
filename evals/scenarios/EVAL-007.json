@@ -1,0 +1,96 @@
+{
+  "id": "EVAL-007",
+  "version": 1,
+  "name": "Ambiguous date or appointment type",
+  "description": "Vague input is refused by the tool layer so the agent must ask a clarifying question.",
+  "category": "conversation_handling",
+  "severity": "medium",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Do not search or book from ambiguous input; the tool returns a request for detail.",
+    "agent_actions": [
+      "get_appointment_availability"
+    ],
+    "forbidden_actions": [
+      "propose_booking",
+      "confirm_operation"
+    ],
+    "operation_outcome": "None.",
+    "database_changes": "None.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "sometime next week"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "needs_input",
+          "code": "invalid_arguments"
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "visit",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "needs_input",
+          "code": [
+            "appointment_type_ambiguous",
+            "appointment_type_unknown"
+          ]
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "equals": 0
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether the model actually asks the caller to clarify instead of guessing."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

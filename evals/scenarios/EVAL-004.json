@@ -1,0 +1,137 @@
+{
+  "id": "EVAL-004",
+  "version": 1,
+  "name": "Cancel an appointment",
+  "description": "A verified caller cancels an upcoming appointment outside the cancellation window.",
+  "category": "appointment_workflows",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "cancel_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ],
+    "appointments": [
+      {
+        "key": "appt1",
+        "patient": "p1",
+        "start": "${slot_a}"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Find the appointment, propose the cancellation, wait for a yes, then confirm.",
+    "agent_actions": [
+      "verify_patient",
+      "get_patient_appointments",
+      "propose_cancellation",
+      "confirm_operation"
+    ],
+    "forbidden_actions": [
+      "propose_booking",
+      "propose_reschedule"
+    ],
+    "operation_outcome": "One succeeded cancellation.",
+    "database_changes": "The appointment becomes cancelled; the record is kept.",
+    "escalation": "forbidden"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_patient_appointments",
+        "args": {},
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_cancellation",
+        "args": {
+          "appointment_ref": "A1",
+          "reason": "Schedule conflict"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "say",
+        "text": "Yes, cancel it.",
+        "actor": "caller"
+      },
+      {
+        "kind": "tool",
+        "tool": "confirm_operation",
+        "args": {
+          "caller_words": "Yes, cancel it"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "committed"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_status",
+        "appointment": "appt1",
+        "status": "cancelled"
+      },
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": -1
+      },
+      {
+        "type": "operation_count",
+        "status": "succeeded",
+        "delta": 1
+      },
+      {
+        "type": "outcome",
+        "equals": "appointment_cancelled"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

@@ -1,0 +1,155 @@
+{
+  "id": "EVAL-003",
+  "version": 1,
+  "name": "Reschedule an appointment",
+  "description": "A verified caller moves an existing appointment to a later day.",
+  "category": "appointment_workflows",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability",
+      "reschedule_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ],
+    "appointments": [
+      {
+        "key": "appt1",
+        "patient": "p1",
+        "start": "${slot_a}"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Find the appointment, offer new times, propose the move, wait for a yes, then confirm.",
+    "agent_actions": [
+      "verify_patient",
+      "get_patient_appointments",
+      "get_appointment_availability",
+      "propose_reschedule",
+      "confirm_operation"
+    ],
+    "forbidden_actions": [
+      "propose_booking",
+      "propose_cancellation"
+    ],
+    "operation_outcome": "One succeeded reschedule.",
+    "database_changes": "The appointment moves; the number of scheduled appointments is unchanged.",
+    "escalation": "forbidden"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_patient_appointments",
+        "args": {},
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date_2}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_reschedule",
+        "args": {
+          "appointment_ref": "A1",
+          "slot_ref": "S1"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "say",
+        "text": "Yes, move it.",
+        "actor": "caller"
+      },
+      {
+        "kind": "tool",
+        "tool": "confirm_operation",
+        "args": {
+          "caller_words": "Yes, move it"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "committed"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_moved",
+        "appointment": "appt1",
+        "moved": true,
+        "reschedule_count": 1
+      },
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "status": "succeeded",
+        "delta": 1
+      },
+      {
+        "type": "no_overlapping_appointments"
+      },
+      {
+        "type": "outcome",
+        "equals": "appointment_rescheduled"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

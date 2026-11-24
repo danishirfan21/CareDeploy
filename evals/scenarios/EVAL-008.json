@@ -1,0 +1,136 @@
+{
+  "id": "EVAL-008",
+  "version": 1,
+  "name": "Incomplete information",
+  "description": "Changes are refused until the caller is verified and arguments are complete.",
+  "category": "conversation_handling",
+  "severity": "high",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability",
+      "book_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Without verification or complete details no proposal is created.",
+    "agent_actions": [
+      "propose_booking",
+      "verify_patient"
+    ],
+    "forbidden_actions": [
+      "confirm_operation"
+    ],
+    "operation_outcome": "None.",
+    "database_changes": "None.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S1"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "needs_input",
+          "code": "verification_required"
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "12"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "needs_input",
+          "code": "invalid_arguments"
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S9"
+        },
+        "actor": "caller",
+        "expect": {
+          "status": "error",
+          "code": "unknown_slot_ref"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "operation_count",
+        "equals": 0
+      },
+      {
+        "type": "no_committed_report"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

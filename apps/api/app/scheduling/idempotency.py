@@ -17,6 +17,7 @@ the operation id / idempotency key.
 """
 
 import asyncio
+import logging
 import time
 import uuid
 from collections.abc import Awaitable, Callable
@@ -45,6 +46,20 @@ WorkResult = tuple[dict[str, Any], uuid.UUID, int]
 Work = Callable[[AsyncSession, uuid.UUID], Awaitable[WorkResult]]
 
 INFRASTRUCTURE_ERRORS = (DBAPIError, OSError)
+log = logging.getLogger("caredeploy.scheduling")
+
+
+def _diagnostic(exc: BaseException) -> str:
+    """Class and PostgreSQL SQLSTATE of an infrastructure failure (never statement parameters or
+    row data), so an intermittent 503 can be attributed to a deadlock (40P01), a serialization
+    failure (40001), a lost connection (08xxx) or something else."""
+    orig: Any = getattr(exc, "orig", None)
+    state = getattr(orig, "sqlstate", None) or getattr(
+        getattr(orig, "__cause__", None), "sqlstate", None
+    )
+    return (
+        f"{type(exc).__name__}/{type(orig).__name__ if orig is not None else '-'} sqlstate={state}"
+    )
 
 
 @dataclass(frozen=True)
@@ -182,6 +197,7 @@ async def execute(
         return await _reconcile(sm, clinic_id, op_id, idempotency_key)
     except INFRASTRUCTURE_ERRORS as exc:
         # The work transaction did not commit, or its commit could not be confirmed. Find out.
+        log.warning("scheduling infrastructure failure: %s", _diagnostic(exc))
         unknown = OutcomeUnknown(
             "The outcome of the operation could not be determined. "
             "Look it up by operation id before retrying.",

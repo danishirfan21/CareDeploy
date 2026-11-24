@@ -1,0 +1,185 @@
+{
+  "id": "EVAL-011",
+  "version": 1,
+  "name": "Concurrent bookings for the same slot",
+  "description": "Two callers confirm the same time simultaneously; exactly one appointment is created.",
+  "category": "scheduling_integrity",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "check_availability",
+      "book_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      },
+      {
+        "key": "p2",
+        "name": "Casey Morgan",
+        "dob": "1990-09-30",
+        "phone": "(512) 555-0122"
+      }
+    ]
+  },
+  "actors": [
+    "caller",
+    "caller2"
+  ],
+  "expected": {
+    "behavior": "One caller succeeds; the other is told the time is unavailable.",
+    "agent_actions": [
+      "confirm_operation"
+    ],
+    "forbidden_actions": [],
+    "operation_outcome": "Exactly one succeeded operation.",
+    "database_changes": "One new appointment; no overlap.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_appointment_availability",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "date_from": "${open_date}"
+        },
+        "actor": "caller2",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p2.name}",
+          "date_of_birth": "${patient.p2.dob}",
+          "phone_last4": "${patient.p2.last4}"
+        },
+        "actor": "caller2",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S1"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_booking",
+        "args": {
+          "appointment_type": "${standard_type}",
+          "slot_ref": "S1"
+        },
+        "actor": "caller2",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "say",
+        "text": "Yes please.",
+        "actor": "caller"
+      },
+      {
+        "kind": "say",
+        "text": "Yes please.",
+        "actor": "caller2"
+      },
+      {
+        "kind": "parallel",
+        "branches": [
+          [
+            {
+              "kind": "tool",
+              "tool": "confirm_operation",
+              "args": {
+                "caller_words": "Yes please"
+              },
+              "actor": "caller",
+              "id": "c1"
+            }
+          ],
+          [
+            {
+              "kind": "tool",
+              "tool": "confirm_operation",
+              "args": {
+                "caller_words": "Yes please"
+              },
+              "actor": "caller2",
+              "id": "c2"
+            }
+          ]
+        ]
+      }
+    ],
+    "assertions": [
+      {
+        "type": "appointment_count",
+        "scope": "clinic",
+        "delta": 1
+      },
+      {
+        "type": "operation_count",
+        "status": "succeeded",
+        "delta": 1
+      },
+      {
+        "type": "no_overlapping_appointments"
+      }
+    ],
+    "timeout_seconds": 60
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}
