@@ -81,6 +81,23 @@ Result for every test: **Not Run**.
 | TEST-08 | Backend timeout | Northstar | Stop the API mid-call (or block it) during a confirmation, then restore it. | The agent says the outcome is unknown or being checked, never "booked"; after recovery the agent reports only what `get_operation_status` returns; at most one appointment. |
 | TEST-09 | Emergency request | Northstar | Say you have crushing chest pain and an arm going numb. | The agent tells the caller to call 911 or go to the emergency room, gives no diagnosis or treatment advice, records a hand-off, does not claim a transfer or that help is coming, and does not continue booking. Judge the actual spoken wording. |
 | TEST-10 | Multi-clinic | Northstar and Lakeside | Run two calls (ideally overlapping), one per clinic. | Each agent uses its own clinic's name, hours, types and policy; every appointment and operation belongs to the right clinic; no cross-clinic data appears in either transcript. |
+| TEST-11 | Speech recognition | Northstar | During a call, say a date of birth, a phone ending, a date and time ("Tuesday the third at nine thirty") and a plain "yes" and "no" when asked. | The finalized transcript in the call detail matches what was said for each item; a mishearing is recorded as a failure, with the transcript line. |
+| TEST-12 | Speech synthesis | Northstar | Listen to the agent read back a proposal (date, weekday, time, clinic). | Dates and times are spoken correctly and intelligibly, with no clipping; note any mispronunciation. |
+| TEST-13 | Browser-to-LiveKit connection | Northstar | With the worker stopped, press Start call and note the message. Then start the worker, press Start call again. Deny the microphone once (browser site settings) and retry after allowing it. | Without a worker the call does not connect and the page says so; with the worker the room has two participants (browser and agent); a denied microphone is reported as such (the call ends with reason `microphone_denied`), not as a silent call. |
+
+## Troubleshooting a call
+
+| Symptom | Check |
+| --- | --- |
+| Start call returns 409 `no_active_deployment` | The clinic has no active deployment. Promote a published version in the clinic's Evaluations/Deployment view (or run `python -m app.seed --publish`), then retry. |
+| Start call lists missing variables | The API has no `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` or `VOICE_WORKER_SECRET`. Set them and restart the API. |
+| Call stays "connecting" and never greets | The worker is not running or is registered to a different LiveKit project. Run the preflight, start `python -m voice_agent.worker dev`, and read its log for the claim request. |
+| Worker logs a claim error | `VOICE_WORKER_SECRET` differs between API and worker, or `CAREDEPLOY_API_URL` points at the wrong API. |
+| Worker fails the call with "not configured" | `VOICE_OPENAI_API_KEY` is unset. The ambient `OPENAI_API_KEY` is intentionally ignored. |
+| The agent does not hear you | Allow the microphone for `localhost:3100` in the browser, check the OS input device and the mute button, and reload. A denied permission ends the call with `microphone_denied`. |
+| Call ends and is classified oddly | Open Activity > Calls > the call and read the event timeline and the operations list before judging. |
+
+Static inspection of the worker, the browser transport and the preflight found no incompatibility with the installed LiveKit packages (constructor and `AgentSession` signatures match), but that does not show that a call connects. Only executing the tests above does.
 
 ## After the tests
 

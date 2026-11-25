@@ -7,7 +7,7 @@ Four kinds of test exist or are planned. A result from one kind never stands in 
 | **Transport unit** | `services/voice-agent/tests/` (`test_runtime.py`, `test_events.py`, `test_states.py`) | Yes | Event ordering and deduplication, redaction, state transitions, provider-error handling, connection failure, flush retry, shutdown cleanup, interruption bookkeeping, latency arithmetic | Anything audible |
 | **Shared tool integration** | `apps/api/tests/test_voice_tools.py`, `test_voice_sessions.py`, `test_lifecycle.py` | Yes | The real tool layer against the real scheduling API and PostgreSQL; session pinning; worker channel auth and integrity | Speech, model decisions |
 | **Genuine LLM** | Not run (needs approved credentials and spend) | No | Would show whether a model follows the instructions (emergency guidance, confirmation, escalation) | Audio |
-| **Real audio** | Manual, [`live-voice-test-plan.md`](live-voice-test-plan.md) TEST-01 to TEST-10, all Not Run | No | Would show speech recognition, synthesis, barge-in and latency with a person speaking | Statistical accuracy (small samples) |
+| **Real audio** | Manual, [`live-voice-test-plan.md`](live-voice-test-plan.md) TEST-01 to TEST-13, all Not Run | No | Would show speech recognition, synthesis, barge-in and latency with a person speaking | Statistical accuracy (small samples) |
 
 ## What the transport unit tests script
 

@@ -27,7 +27,7 @@ npm run dev                          # http://localhost:3100
 | 5 | **Readiness** | Readiness is computed on the server. The browser cannot supply or override it. Passing means the workflow simulation passed, and the page says real voice verification has not been completed. | Readiness checks, evidence level labelled. |
 | 6 | **Promote to Simulated Live** | Promotion moves a pointer after re-checking evidence under a row lock. It deploys nothing externally. | Deployment panel and history event with the evidence it used. |
 | 7 | **Playground** | The browser starts a session pinned to the active version. The no-audio test transport shows the pipeline; real audio needs credentials. | Session bound to clinic and "config v1". |
-| 8 | **Live voice appointment (PENDING)** | This is the step that needs LiveKit and provider credentials. It is documented as TEST-01 to TEST-10 and has not been run. | Say plainly that it is not done. Show the preflight reporting missing variables. |
+| 8 | **Live voice appointment (PENDING)** | This is the step that needs LiveKit and provider credentials. It is documented as TEST-01 to TEST-13 and has not been run. | Say plainly that it is not done. Show the preflight reporting missing variables. |
 | 9 | **Activity > Calls > a call** | Every call has a classified outcome (completed, escalated, failed, abandoned, unknown), the operations it caused, and its tool trace. Escalation is not counted as failure; unknown is kept apart. | Call detail with operations checked against the ledger. |
 | 10 | **Lakeside Dermatology** | A second clinic has different hours, types and policy, enforced by the same code. | Different configuration; scheduling rejects what the policy forbids. |
 | 11 | **Publish a changed version, evaluate, promote** | New sessions use the new version; existing sessions keep theirs. | Two sessions on different versions. |
@@ -39,11 +39,13 @@ Evaluation is only worth trusting if it can fail. The backend test suite proves 
 
 ```powershell
 cd apps/api
-.venv\Scripts\python -m pytest tests/test_evals_runner.py -k "false_tool_success" -q
+.venv\Scripts\python -m pytest tests/test_evals_runner.py -k "false_tool_success or bypassed_cancellation_window" -q
 ```
+
+Inspecting a failure or a stuck call: open Activity > Calls > the call, read the event timeline and its operations, then compare with the ledger in PostgreSQL (queries are in [`live-voice-test-plan.md`](live-voice-test-plan.md), which also lists troubleshooting steps for calls that do not connect). A failed evaluation shows each failed assertion with expected and observed values.
 
 ## If asked
 
 - **Is it production ready?** No. See [`security.md`](security.md) and [`verification-matrix.md`](verification-matrix.md).
 - **Does the voice work?** The tool layer, transport lifecycle and UI are tested without audio. Speech recognition, synthesis, interruption and model behavior are unverified.
-- **What would you do next?** Run the ten live tests, then Mode B (model-driven) evaluations with approved spend.
+- **What would you do next?** Run the thirteen live tests, then Mode B (model-driven) evaluations with approved spend.

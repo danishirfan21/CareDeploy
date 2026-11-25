@@ -38,13 +38,17 @@ Readiness checks, compare-and-swap promotion, evidence tied to scenario and suit
 
 Only what was measured, with its limits, is in [`demo-evidence.md`](demo-evidence.md) and [`verification-matrix.md`](verification-matrix.md). No call volumes, savings or accuracy rates are claimed because none were measured.
 
+## Operational traceability and reproducibility
+
+Every call is persisted with its configuration version, transcript, tool activity and the operations it caused, and an outcome class (escalation is not failure; unknown is kept apart). A reviewer can follow a call from the Activity page to the operation ledger and the appointment row in PostgreSQL. Setup is scripted (migrations, seed, one-command test suites), and the GitHub Actions workflow runs lint, strict typing, the backend suite on PostgreSQL, a migration smoke test, the voice-service tests, the frontend checks and Playwright end to end. It does not prove live voice.
+
 ## Tradeoffs
 
 Per-clinic serialization of bookings trades peak throughput for correctness. Workflow-simulation evaluation is cheap and repeatable but cannot judge model behavior. No user authentication: the admin API must sit behind access control.
 
 ## Limitations
 
-Live voice, speech quality, barge-in, model-driven evaluation, CI and Compose are unverified (see the matrix). Not a HIPAA-compliant system; no real patient data should be used.
+Live voice, speech quality, barge-in, model-driven evaluation and Docker Compose are unverified (see the matrix). The GitHub Actions workflow has run remotely and passed (after one real failure on its first run, a missing generated-types step, which was fixed); it deliberately excludes live voice. Not a HIPAA-compliant system; no real patient data should be used.
 
 ## Relevance to forward-deployed work
 

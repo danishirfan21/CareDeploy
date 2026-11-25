@@ -44,6 +44,12 @@ async def scalar(sql: str, **params: Any) -> Any:
         return await s.scalar(text(sql), params)
 
 
+async def row(sql: str, **params: Any) -> tuple[Any, ...]:
+    async with get_sessionmaker()() as s:
+        r = (await s.execute(text(sql), params)).one()
+        return tuple(r)
+
+
 async def start_call(w: World, clinic_id: uuid.UUID) -> dict[str, Any]:
     r = await w.client.post(f"/api/clinics/{clinic_id}/voice/sessions")
     assert r.status_code == 201, r.text
@@ -224,6 +230,17 @@ async def test_full_lifecycle(voice: None, world: World) -> None:
     assert again.json()["config_version"] == 1
     assert (await claim(w, still))["config_version"] == 1
 
+    # Evidence and call records captured before the rollback, to prove it rewrites neither.
+    results_sql = (
+        "select md5(string_agg(r.id::text || r.status || r.scenario_hash, ',' order by r.id)),"
+        " count(*) from eval_scenario_results r"
+    )
+    results_before = await row(results_sql)
+    calls_before = await row(
+        "select md5(string_agg(id::text || config_version::text, ',' order by id)), count(*)"
+        " from call_sessions"
+    )
+
     # 19. Roll back: a new event, v1 active again, new sessions on v1.
     rb = await w.client.post(
         url(w, "/rollback"), json={"target_version": 1, "expected_active_version": 2}
@@ -240,6 +257,17 @@ async def test_full_lifecycle(voice: None, world: World) -> None:
         c=cid,
     )
     assert "version two" not in str(greeting_v1) and "Draft greeting" not in str(greeting_v1)
+    # Rollback rewrote neither the earlier call records nor the stored evaluation results.
+    assert await row(results_sql) == results_before and results_before[1] > 0
+    still_calls = await row(
+        "select md5(string_agg(id::text || config_version::text, ',' order by id)), count(*)"
+        " from call_sessions where id = any(:ids)",
+        ids=[uuid.UUID(x) for x in (call_a["call_session_id"], call_b["call_session_id"])],
+    )
+    assert still_calls[1] == 2 and calls_before[1] >= 2
+    assert (await w.client.get(f"/api/clinics/{cid}/calls/{call_b['call_session_id']}")).json()[
+        "config_version"
+    ] == 2
     # Append-only history: the database refuses edits and deletes.
     async with get_sessionmaker()() as s:
         for stmt in ("DELETE FROM deployment_events", "UPDATE deployments SET config_version = 9"):

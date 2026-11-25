@@ -9,7 +9,7 @@
 - Added: full 20-step lifecycle test, evaluator mutation tests, exposure guard and `/dev` production gate, voice credential preflight, runtime transport tests, rewritten CI workflow, security review, verification matrix, live voice test plan, demo script and evidence, case study, test-performance analysis.
 
 ### Not verified
-- Live voice (TEST-01 to TEST-10 all Not Run), speech recognition and synthesis, barge-in, model behavior (including emergency guidance, VD-12 partial).
+- Live voice (TEST-01 to TEST-13 all Not Run), speech recognition and synthesis, barge-in, model behavior (including emergency guidance, VD-12 partial).
 - GitHub Actions: first run of the rewritten workflow failed (`LayoutProps` missing on a clean checkout), fixed in 8111064; all six jobs then passed. Docker Compose never run (Docker unavailable).
 - The test-time optimization attempted (background database drops) was slower and was reverted; no speedup is claimed (`test-performance.md`).
 - Cancellation-window policy has no evaluation scenario (VD-20).
