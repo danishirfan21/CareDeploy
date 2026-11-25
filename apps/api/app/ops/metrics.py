@@ -16,7 +16,7 @@ Definitions (also in docs/observability.md):
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import and_, case, distinct, func, select
+from sqlalchemy import String, and_, case, cast, distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import CallEvent, CallSession, Clinic
@@ -95,7 +95,12 @@ async def compute(
     # One row per tool call: the `finished` event, distinct by (session, call_id).
     phase = CallEvent.payload["phase"].astext
     status = CallEvent.payload["status"].astext
-    call_key = func.coalesce(CallEvent.payload["call_id"].astext, CallEvent.event_id)
+    # Scoped to the session: ids such as "c1" can repeat across calls and must not collapse.
+    call_key = func.concat(
+        cast(CallEvent.call_session_id, String),
+        ":",
+        func.coalesce(CallEvent.payload["call_id"].astext, CallEvent.event_id),
+    )
     ok = func.count(distinct(case((status.in_(tuple(OK_STATUSES)), call_key))))
     unc = func.count(distinct(case((status == "uncertain", call_key))))
     done = func.count(distinct(call_key))

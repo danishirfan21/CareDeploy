@@ -137,7 +137,7 @@ Frontend only; backend, models and migrations unchanged. See `ui-architecture.md
 ### Not verified
 - **Docker Compose**: Docker is not installed here, so `docker compose up postgres` was never run. The compose file is untested.
 - GitHub Actions CI is unrun (not pushed).
-- Verification used a dedicated local cluster (`D:\CareDeploy\.pgdata`, port 5433, Postgres 16 binaries from `D:\Postgresql`), not Compose's Postgres 17.
+- Verification used a dedicated local PostgreSQL cluster on port 5433, not Compose's Postgres 17 (Compose could not be run here).
 
 ### Notes
 - Web dev port is 3100 because 3000 is occupied by another local app.

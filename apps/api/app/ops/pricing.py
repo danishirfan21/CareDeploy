@@ -18,12 +18,14 @@ Units: input_tokens, output_tokens, characters, audio_seconds. Amounts are decim
 """
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
+log = logging.getLogger("caredeploy.pricing")
 UNITS = ("input_tokens", "output_tokens", "characters", "audio_seconds")
 UNAVAILABLE_NO_USAGE = "Cost unavailable: provider usage data was not recorded."
 # livekit-agents usage field -> our unit
@@ -69,35 +71,59 @@ EMPTY = RateTable("USD", ())
 
 
 def load_rates(path: str) -> RateTable:
-    """Read the rate file. A missing or empty path means no pricing is configured."""
+    """Read the rate file. No path means no pricing is configured. A file that is missing,
+    unreadable or invalid is treated the same way (every cost is unavailable) and logged: a
+    broken price list must never produce a wrong number or break the call pages."""
     if not path:
         return EMPTY
     file = Path(path)
     if not file.is_file():
+        log.warning("COST_RATES_FILE is set but the file does not exist; costs are unavailable")
         return EMPTY
-    return parse_rates(json.loads(file.read_text(encoding="utf8")))
+    try:
+        return parse_rates(json.loads(file.read_text(encoding="utf8")))
+    except (ValueError, KeyError, TypeError, InvalidOperation, OSError) as exc:
+        log.warning("COST_RATES_FILE is invalid (%s); costs are unavailable", exc)
+        return EMPTY
 
 
 def parse_rates(data: dict[str, Any]) -> RateTable:
+    """Parse and validate. Raises ValueError for anything that could price a call wrongly:
+    unknown unit, non-positive `per`, negative amount, an end date before the start date, or two
+    rates for the same provider, model and unit whose dates overlap."""
     rates: list[Rate] = []
     for r in data.get("rates", []):
         if r["unit"] not in UNITS:
             raise ValueError(f"unknown pricing unit {r['unit']!r}")
-        rates.append(
-            Rate(
-                provider=str(r["provider"]),
-                model=str(r["model"]),
-                unit=str(r["unit"]),
-                per=Decimal(str(r["per"])),
-                amount=Decimal(str(r["amount"])),
-                effective_from=date.fromisoformat(r["effective_from"]),
-                effective_to=date.fromisoformat(r["effective_to"])
-                if r.get("effective_to")
-                else None,
-                source=str(r.get("source", "")),
-            )
+        rate = Rate(
+            provider=str(r["provider"]),
+            model=str(r["model"]),
+            unit=str(r["unit"]),
+            per=Decimal(str(r["per"])),
+            amount=Decimal(str(r["amount"])),
+            effective_from=date.fromisoformat(r["effective_from"]),
+            effective_to=date.fromisoformat(r["effective_to"]) if r.get("effective_to") else None,
+            source=str(r.get("source", "")),
         )
-    return RateTable(str(data.get("currency", "USD")), tuple(rates))
+        label = f"{rate.provider}/{rate.model} {rate.unit}"
+        if not rate.per.is_finite() or rate.per <= 0:
+            raise ValueError(f"{label}: 'per' must be a positive number")
+        if not rate.amount.is_finite() or rate.amount < 0:
+            raise ValueError(f"{label}: 'amount' must not be negative")
+        if rate.effective_to is not None and rate.effective_to < rate.effective_from:
+            raise ValueError(f"{label}: effective_to is before effective_from")
+        for other in rates:
+            if (other.provider, other.model, other.unit) != (rate.provider, rate.model, rate.unit):
+                continue
+            a_end = other.effective_to or date.max
+            b_end = rate.effective_to or date.max
+            if rate.effective_from <= a_end and other.effective_from <= b_end:
+                raise ValueError(f"{label}: overlapping effective date ranges")
+        rates.append(rate)
+    currency = str(data.get("currency", "USD")).strip()
+    if not currency:
+        raise ValueError("currency must not be empty")
+    return RateTable(currency, tuple(rates))
 
 
 def metered_lines(provider_usage: dict[str, Any]) -> list[dict[str, Any]]:

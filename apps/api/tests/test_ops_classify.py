@@ -1,5 +1,6 @@
 """Outcome classification: a pure function of the call record and the operations ledger."""
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -153,3 +154,59 @@ def test_cost_is_computed_from_rates_and_dated() -> None:
     assert estimate(usage(), early, table(), now)["available"] is False
     # An unrated metered line makes the whole estimate unavailable.
     assert estimate(usage(characters_count=500), now, table(), now)["available"] is False
+
+
+# --------------------------------------------------------------------- rate file validation ----
+def _rate(**over: object) -> dict[str, object]:
+    base: dict[str, object] = {
+        "provider": "p",
+        "model": "m",
+        "unit": "input_tokens",
+        "per": 1000,
+        "amount": "0.5",
+        "effective_from": "2026-01-01",
+    }
+    base.update(over)
+    return base
+
+
+@pytest.mark.parametrize(
+    ("bad", "message"),
+    [
+        ({"unit": "dollars"}, "unknown pricing unit"),
+        ({"per": 0}, "positive"),
+        ({"per": -1000}, "positive"),
+        ({"amount": "-0.1"}, "negative"),
+        ({"effective_to": "2025-12-31"}, "before effective_from"),
+        ({"per": "NaN"}, "positive"),
+    ],
+)
+def test_invalid_rates_are_rejected(bad: dict[str, object], message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        parse_rates({"rates": [_rate(**bad)]})
+
+
+def test_overlapping_rates_are_rejected_but_adjacent_ranges_are_allowed() -> None:
+    with pytest.raises(ValueError, match="overlapping"):
+        parse_rates({"rates": [_rate(), _rate(effective_from="2026-06-01")]})
+    ok = parse_rates(
+        {
+            "rates": [
+                _rate(effective_to="2026-05-31"),
+                _rate(effective_from="2026-06-01", amount="0.6"),
+            ]
+        }
+    )
+    assert len(ok.rates) == 2
+
+
+def test_broken_rate_file_means_no_pricing_not_a_crash(tmp_path: Path) -> None:
+    from app.ops.pricing import EMPTY, load_rates
+
+    bad = tmp_path / "rates.json"
+    bad.write_text('{"rates": [{"provider": "p"}]}', encoding="utf8")
+    assert load_rates(str(bad)) is EMPTY
+    bad.write_text("not json", encoding="utf8")
+    assert load_rates(str(bad)) is EMPTY
+    assert load_rates(str(tmp_path / "missing.json")) is EMPTY
+    assert load_rates("") is EMPTY

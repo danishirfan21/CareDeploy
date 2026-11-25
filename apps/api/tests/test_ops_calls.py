@@ -276,6 +276,17 @@ async def test_tool_counts_ignore_duplicates_and_pair_events(world: World) -> No
     assert t["failure_rate"]["denominator"] == 3
 
 
+async def test_tool_call_ids_repeating_across_calls_are_counted_separately(
+    world: World,
+) -> None:
+    cid = world.north.id
+    for _ in range(2):  # two different calls whose tools both use the id "c1"
+        sid = await add_call(world, outcome="information_provided")
+        await add_event(sid, cid, 1, "tool", {"phase": "finished", "call_id": "c1", "status": "ok"})
+    t = (await world.client.get(metrics_url(world), params=RANGE)).json()["tools"]
+    assert (t["finished"], t["succeeded"]) == (2, 2)
+
+
 @pytest.fixture
 def rates(tmp_path: Any) -> Any:
     import json

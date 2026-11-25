@@ -13,8 +13,11 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M3 | LiveKit voice agent and Playground | Partially complete: built and tested without audio; live voice verification blocked on credentials |
 | M4 | Evaluation engine: 20 scenarios, workflow simulation, readiness and regression views | Done for workflow simulation. LLM and real-audio modes are not run (no approved credentials) |
 | M5 | Call operations, metrics, cost estimates, Simulated Live deployment pointer with rollback | Built and tested on simulated data. Live audio and real cost rates are not verified |
+| M6 | Integration, reliability, safety review, reproducibility, demo preparation | Implementation and demonstration preparation complete. **Not** fully live-voice verified |
 
-What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow and Docker Compose setup have not been run yet.
+What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow has **never run** on GitHub and Docker Compose has **never been run** (Docker is unavailable on the development machine), so no CI result or Compose result is claimed. The full per-area picture is in [`docs/verification-matrix.md`](docs/verification-matrix.md).
+
+This is an independent portfolio project using sample data. It is not affiliated with any company and is not HIPAA compliant.
 
 ## Features
 
@@ -83,7 +86,7 @@ Without LiveKit settings the Playground still loads and reports exactly which va
 ### Without Docker (Windows)
 
 ```powershell
-$b = "D:\Postgresql\bin"   # your PostgreSQL bin directory
+$b = "C:\Program Files\PostgreSQL\17\bin"   # example path: use your PostgreSQL bin directory
 "caredeploy" | Set-Content $env:TEMP\pw.txt
 & "$b\initdb.exe" -D .pgdata -U caredeploy --pwfile=$env:TEMP\pw.txt --auth=scram-sha-256
 Start-Process "$b\pg_ctl.exe" "-D .pgdata -o `"-p 5433`" -l .pgdata\server.log start" -NoNewWindow
@@ -130,6 +133,12 @@ Backend tests run against a real PostgreSQL database named `<dev db>_test`, drop
 | [`docs/verification-debt.md`](docs/verification-debt.md) | Built but not yet verified live |
 | [`docs/implementation-status.md`](docs/implementation-status.md) | What was verified and what was not |
 | [`docs/product-spec.md`](docs/product-spec.md) | Product specification |
+| [`docs/verification-matrix.md`](docs/verification-matrix.md) | Verified, blocked and not-run areas |
+| [`docs/live-voice-test-plan.md`](docs/live-voice-test-plan.md) | Manual live voice tests (all Not Run) |
+| [`docs/security.md`](docs/security.md) | Security review and exposure guard |
+| [`docs/concurrency-investigation.md`](docs/concurrency-investigation.md) | The intermittent 503 and its fix |
+| [`docs/demo-script.md`](docs/demo-script.md) | Twelve-step walkthrough |
+| [`docs/hiring-case-study.md`](docs/hiring-case-study.md) | Project case study |
 
 ## Limitations
 
