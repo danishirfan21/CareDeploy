@@ -1,6 +1,6 @@
 {
   "id": "EVAL-015",
-  "version": 1,
+  "version": 2,
   "name": "Cross-clinic access",
   "description": "A patient of another clinic cannot be verified or touched through this clinic, and nothing leaks.",
   "category": "authorization_safety",
@@ -87,6 +87,17 @@
         "clinic": "primary",
         "id": "cross_list",
         "as_patient": "p1",
+        "expect": {
+          "ok": false
+        }
+      },
+      {
+        "kind": "api",
+        "method": "GET",
+        "path": "/patients/${patient.o1.id}/appointments",
+        "clinic": "primary",
+        "id": "foreign_token_list",
+        "as_patient": "o1",
         "expect": {
           "ok": false
         }

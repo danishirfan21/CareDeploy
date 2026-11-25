@@ -238,3 +238,104 @@ async def test_finished_results_are_immutable(world: World) -> None:
             with pytest.raises(DBAPIError):
                 await s.execute(text(stmt), {"i": run_id})
             await s.rollback()
+
+
+# ---- more mutations: each weakened guarantee must turn its scenario red ------------------------
+@pytest.mark.asyncio
+async def test_false_tool_success_is_caught(world: World, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A tool that reports a committed booking without writing anything must fail the booking
+    scenario: the evaluation checks PostgreSQL, not what the tool claims."""
+    from voice_agent.tools import ConfirmArgs, Toolbox, ToolResult
+
+    async def liar(self: Toolbox, a: ConfirmArgs) -> ToolResult:
+        return ToolResult(ok=True, status="committed", message="Your appointment is booked.")
+
+    monkeypatch.setattr(Toolbox, "confirm_operation", liar)
+    rs = await results(await run_eval(world, "scenario", "EVAL-001"))
+    assert rs["EVAL-001"].status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_ignored_idempotency_key_is_caught(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If a retry is no longer recognised as the same operation, the lost-response scenario fails."""
+    import uuid
+
+    from app.scheduling import adapter
+    from app.scheduling import idempotency as idem
+
+    real = idem.execute
+
+    async def fresh_key(*a: Any, **k: Any) -> Any:
+        k["idempotency_key"] = f"mutant-{uuid.uuid4()}"
+        return await real(*a, **k)
+
+    monkeypatch.setattr(adapter, "execute", fresh_key)
+    rs = await results(await run_eval(world, "scenario", "EVAL-010"))
+    assert rs["EVAL-010"].status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_broken_clinic_scoping_is_caught(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Accepting another clinic's patient token must turn the cross-clinic scenario red."""
+    from sqlalchemy import select
+
+    from app.models import PatientAuthorization
+    from app.scheduling import adapter
+    from app.scheduling.auth import AuthContext, hash_token
+
+    async def lax(session: Any, clinic_id: Any, bearer: Any, now: Any) -> AuthContext:
+        row = await session.scalar(
+            select(PatientAuthorization).where(
+                PatientAuthorization.token_hash == hash_token(bearer or "")
+            )
+        )
+        return AuthContext(clinic_id, row.patient_id, row.id)
+
+    monkeypatch.setattr(adapter, "authorize", lax)
+    rs = await results(await run_eval(world, "scenario", "EVAL-015"))
+    assert rs["EVAL-015"].status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_patient_scope_bypass_is_caught(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Dropping the patient-scope check turns the cross-clinic listing scenario red."""
+    from app.scheduling import adapter, service
+
+    monkeypatch.setattr(adapter, "require_patient", lambda *a, **k: None)
+    monkeypatch.setattr(service, "require_patient", lambda *a, **k: None)
+    rs = await results(await run_eval(world, "scenario", "EVAL-015"))
+    assert rs["EVAL-015"].status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_appointment_ownership_bypass_is_caught(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Letting one patient act on another's appointment turns the ownership scenario red."""
+    from sqlalchemy import select
+
+    from app.models import Appointment
+    from app.scheduling import service
+    from app.scheduling.auth import AuthContext
+    from app.scheduling.errors import NotFound
+
+    async def lax(
+        session: Any, ctx: AuthContext, appointment_id: Any, *, lock: bool = False
+    ) -> Any:
+        q = select(Appointment).where(
+            Appointment.clinic_id == ctx.clinic_id, Appointment.id == appointment_id
+        )
+        appt = await session.scalar(q.with_for_update() if lock else q)
+        if appt is None:
+            raise NotFound("Appointment not found.")
+        return appt
+
+    monkeypatch.setattr(service, "get_appointment", lax)
+    rs = await results(await run_eval(world, "scenario", "EVAL-014"))
+    assert rs["EVAL-014"].status == "failed"
