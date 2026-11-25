@@ -7,7 +7,7 @@ import uuid
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,6 +40,20 @@ from app.schemas.scheduling import (
 )
 
 EXCLUSION_VIOLATION = "23P01"
+
+
+async def lock_schedule(session: AsyncSession, clinic_id: uuid.UUID) -> None:
+    """Serialize the writers that add or move appointment time ranges within one clinic.
+
+    Without this, two transactions inserting overlapping ranges each wait on the other's
+    uncommitted row inside the exclusion constraint and PostgreSQL aborts one with a deadlock
+    (SQLSTATE 40P01) after deadlock_timeout. The advisory lock is transaction-scoped and is always
+    taken before any appointment row is touched. The exclusion constraint stays as the
+    authoritative backstop; this only removes the avoidable deadlock."""
+    await session.execute(
+        text("select pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+        {"k": f"schedule:{clinic_id}"},
+    )
 
 
 def canonical_hash(data: dict[str, Any]) -> str:
@@ -510,6 +524,7 @@ async def book(
     operation_id: uuid.UUID,
     now: datetime,
 ) -> Appointment:
+    await lock_schedule(session, ctx.clinic_id)
     info = await plan_book(session, cfg, type_id, start, now)
     appt = Appointment(
         clinic_id=ctx.clinic_id,
@@ -550,6 +565,7 @@ async def reschedule(
     operation_id: uuid.UUID,
     now: datetime,
 ) -> Appointment:
+    await lock_schedule(session, ctx.clinic_id)
     appt = await get_appointment(session, ctx, appointment_id, lock=True)
     if appt.row_version != expected_row_version:
         raise AppointmentModified("The appointment was changed after this was proposed.")

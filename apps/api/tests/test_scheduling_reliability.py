@@ -341,3 +341,31 @@ async def test_published_snapshots_stay_immutable(world: World) -> None:
         with pytest.raises(DBAPIError):
             await s.execute(text("update config_versions set snapshot = '{}'::jsonb"))
         await s.rollback()
+
+
+async def test_heavy_contention_has_no_infrastructure_failures(
+    world: World, caplog: pytest.LogCaptureFixture
+) -> None:
+    """VD-09: drive far more concurrent writers than the connection pool has connections, over
+    overlapping slots, and require every answer to be a business outcome (201/409). Any 503 or
+    logged infrastructure failure fails the test and carries its SQLSTATE, so an intermittent
+    503 can be classified (deadlock 40P01, serialization 40001, lock timeout 55P03, connection
+    08xxx, exclusion 23P01) instead of assumed."""
+    caplog.set_level("WARNING", logger="caredeploy.scheduling")
+    people = [world.p("Avery"), world.p("Jordan"), world.p("Morgan")]
+    for p in people:
+        await world.token(p)
+    starts = [utc(2026, 3, 3, 15, 0), utc(2026, 3, 3, 15, 15), utc(2026, 3, 3, 15, 30)]
+    jobs = [world.book(people[i % 3], "Annual physical", starts[i % 3]) for i in range(48)]
+    results = await asyncio.gather(*jobs)
+    bad = [(r.status_code, r.text[:160]) for r in results if r.status_code not in (201, 409)]
+    infra = [m for m in caplog.messages if "infrastructure failure" in m]
+    assert not bad and not infra, {"responses": bad, "diagnostics": infra}
+    assert (
+        await _count(
+            "select count(*) from appointments a join appointments b on a.id < b.id "
+            "and a.status='scheduled' and b.status='scheduled' and a.clinic_id=b.clinic_id "
+            "and tstzrange(a.start_at, a.end_at) && tstzrange(b.start_at, b.end_at)"
+        )
+        == 0
+    )

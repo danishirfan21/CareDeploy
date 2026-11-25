@@ -41,7 +41,7 @@ Twenty version-controlled scenarios (`evals/scenarios/`) drive the real voice-ag
 - Emergency guidance in the shared agent instructions is a documented gap (VD-12), not changed here.
 
 ### Investigations
-- **M2 concurrency 503:** SQLSTATE logging (exception class and code only, no data) was added to the scheduling infrastructure-failure path. The cause is still unproven; no repeated-run reproduction was done in this milestone (VD-09, Partial).
+- **M2 concurrency 503:** root cause found in M6 (PostgreSQL deadlock `40P01` between overlapping inserts under the exclusion constraint) and fixed with a per-clinic advisory lock; see `concurrency-investigation.md` (VD-09).
 - **Backend suite duration:** the pre-M4 suite was about 9 minutes. The M4 tests dominate the increase because every scenario clones a database from a per-run template that must be migrated first (full suite about 130 s, single scenario about 100 s under load). No refactor was made; running the suite alongside Playwright or mypy roughly doubles it.
 - A stopped Playwright run left one scratch evaluation database; it was removed by name pattern. Do not run two pytest sessions against the same test database at once.
 
