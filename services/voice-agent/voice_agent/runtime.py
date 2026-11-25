@@ -102,7 +102,7 @@ class CallRuntime:
     def on_agent_state(self, new: str) -> None:
         self.activity = new
         if new == "speaking" and self._user_stopped_at is not None:
-            self.response_latencies_ms.append(int((self._mono() - self._user_stopped_at) * 1000))
+            self.response_latencies_ms.append(round((self._mono() - self._user_stopped_at) * 1000))
             self._user_stopped_at = None
         conv = _AGENT_TO_CONV.get(new)
         if conv and self.tracker.conversation not in STICKY:
@@ -129,13 +129,14 @@ class CallRuntime:
         self.interim_user = ""
         if not text.strip():
             return
-        self.box.note_user_turn(text)
-        self.rec.record(
+        recorded = self.rec.record(
             "transcript",
             {"speaker": "caller", "text": text, "final": True},
             event_id=f"item:{item_id}",
             occurred_at=at,
         )
+        if recorded is not None:  # a redelivered final transcript must not count as a new turn
+            self.box.note_user_turn(text)
         self._dirty = True
 
     def on_agent_final(
