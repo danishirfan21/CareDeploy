@@ -1,16 +1,16 @@
 # Implementation status
 
-## M5 - Operations, deployment and observability (2026-11-25): BUILT AND TESTED ON SIMULATED DATA; NOT PUSHED; live audio, real cost rates and multi-operator use NOT VERIFIED
+## M5 - Operations, deployment and observability (2026-11-25): COMPLETE ON SIMULATED DATA; NOT PUSHED; live audio, real cost rates and multi-operator use NOT VERIFIED
 
 Activity now has a real Calls tab (list, filters, search, pagination, details, three compact metrics with the rest behind "Show details"). Outcomes are classified from persisted evidence (the scheduling ledger, call status and events), never from the agent's wording. A "Simulated Live" deployment pointer selects the configuration version that new voice sessions use. Promotion and rollback are decided on the server from the M4 readiness evidence, under a clinic row lock with compare-and-swap and clinic-scoped idempotency keys. History is append-only. See `operations.md`, `deployments.md`, `observability.md`.
 
 ### Verified (actually executed)
 - Backend: ruff, ruff format and strict mypy (86 files) clean.
-- Backend pytest, one full run: 215 passed, 2 failed, in 32 minutes. The two failures were the M4 runner's "no leftover scratch database" checks, caused by scratch databases left by evaluation runs I had killed. After dropping them, `tests/test_evals_runner.py` passed 10 of 10. I did **not** run the whole suite a second time, so there is no single all-green run. The new 0006 migration test (4 of 4 in `test_migrations.py`) was added after that run.
+- Backend pytest, final full run: **218 passed** in 34m41s, no failures. (An earlier full run had two failures in the M4 runner's leftover-database checks, caused by scratch databases left by evaluation runs I had killed; they were dropped and the final run is clean.)
 - New backend tests: `test_ops_classify.py` (15), `test_ops_calls.py` (12), `test_deployments.py` (16, passed across separate runs), plus one 0006 upgrade/downgrade test.
 - A real bug found by the concurrency test and fixed: the stale-run sweep committed while the clinic lock was held, releasing it. Concurrent promotions then reached the unique index and returned 503. The sweep now runs before the lock is taken.
 - Voice service: 9 tests passed. eslint, tsc, prettier and `next build` pass.
-- Playwright: first full run 39 passed, 6 failed; second full run 42 passed, 3 failed. After fixes, the affected spec files passed on reruns (`evaluations`, `operations`, `voice`: 19 tests, 18 passed, then the one remaining voice test fixed and `voice.spec.ts` passed 7 of 7). There was **no** single clean full Playwright run after the final fixes.
+- Playwright, final full run: **45 passed** (3.8 min, one worker), covering the M1-M4 specs and the new `operations.spec.ts`. Earlier full runs: 39 passed / 6 failed, then 42 passed / 3 failed, before the fixes below.
 - The 6 first-run failures were four stale M3/M4-era assertions (placeholder text, call-detail URL and regions) and two bugs in the new e2e spec (an empty-state clinic name that does not exist, and appointment-type ids copied between clinics).
 - Migration `0006_operations` is additive. It was checked by `alembic check`, an upgrade/downgrade round trip with an existing call row, and `test_migrations.py`.
 
