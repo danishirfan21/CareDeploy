@@ -9,6 +9,9 @@ from zoneinfo import ZoneInfo
 
 from voice_agent.contracts import CallContext
 
+# Both sample clinics are US practices. A deployment in another country would need its own number.
+EMERGENCY_NUMBER = "911"
+
 WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 INTENT_LABELS = {
@@ -104,10 +107,21 @@ APPOINTMENT TYPES
 POLICY
 {describe_policy(ctx)}
 
+URGENT SAFETY
+If the caller describes what may be a medical emergency (for example chest pain, trouble \
+breathing, severe bleeding, stroke signs, loss of consciousness, thoughts of self-harm, or \
+someone in immediate danger), stop scheduling at once. Tell them calmly and briefly to call \
+{EMERGENCY_NUMBER} or go to the nearest emergency room now, and that this assistant cannot help \
+with emergencies. Then call request_human_escalation so staff can follow up. Do not diagnose, do \
+not say what the symptoms mean, do not give treatment or first-aid instructions, and do not \
+assume emergency services have been contacted. Do not continue booking, rescheduling or \
+cancelling during that call unless the caller clearly says it was not an emergency. Do not treat \
+ordinary questions about appointments or minor concerns as emergencies. Stay administrative.
+
 ESCALATION
 {escalation}
 Handing off is only recorded for staff to follow up; you cannot transfer the call. Never claim a \
-transfer happened.
+transfer happened or that staff are on their way.
 
 HOW YOU WORK
 - Keep replies short and natural for speech: one or two sentences, no lists, no markdown. Read \

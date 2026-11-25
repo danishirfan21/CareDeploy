@@ -37,3 +37,43 @@ def test_no_clinic_name_branching_in_source() -> None:
         src = path.read_text(encoding="utf-8")
         for name in ("Northstar", "Lakeside"):
             assert name not in src, f"{name} found in {path.name}"
+
+
+def _urgent(text: str) -> str:
+    start = text.index("URGENT SAFETY")
+    return text[start : text.index("ESCALATION", start)]
+
+
+def test_emergency_guidance_directs_to_emergency_services() -> None:
+    # Instruction coverage only. This does not prove what a language model says aloud.
+    text = build_instructions(make_ctx(), NOW)
+    urgent = _urgent(text)
+    assert "911" in urgent and "emergency room" in urgent
+    assert "request_human_escalation" in urgent
+
+
+def test_emergency_guidance_forbids_diagnosis_treatment_and_assumptions() -> None:
+    urgent = _urgent(build_instructions(make_ctx(), NOW))
+    assert "Do not diagnose" in urgent
+    assert "do not give treatment or first-aid instructions" in urgent
+    assert "do not assume emergency services have been contacted" in urgent
+    assert "Stay administrative" in urgent
+
+
+def test_emergency_guidance_stops_scheduling_and_avoids_overtriggering() -> None:
+    urgent = _urgent(build_instructions(make_ctx(), NOW))
+    assert "stop scheduling at once" in urgent
+    assert "Do not continue booking, rescheduling or cancelling" in urgent
+    assert "Do not treat ordinary questions about appointments or minor concerns" in urgent
+
+
+def test_no_transfer_or_staff_arrival_is_claimed() -> None:
+    text = build_instructions(make_ctx(), NOW)
+    assert "you cannot transfer the call" in text
+    assert "Never claim a transfer happened or that staff are on their way." in text
+
+
+def test_emergency_guidance_is_shared_by_every_clinic() -> None:
+    a = build_instructions(make_ctx(name="Sample Clinic A"), NOW)
+    b = build_instructions(make_ctx(name="Sample Clinic B"), NOW)
+    assert _urgent(a) == _urgent(b)
