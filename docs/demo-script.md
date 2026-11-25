@@ -22,7 +22,7 @@ npm run dev                          # http://localhost:3100
 | --- | --- | --- | --- |
 | 1 | **Clinics > Northstar Family Medicine** | Each clinic is configured once: hours, appointment types, policy, agent behavior. No clinic names are hardcoded in code. | Configuration wizard with saved values. |
 | 2 | **Published version** | Publishing creates an immutable numbered snapshot. A draft is never what calls use. | Version list; the database refuses edits to a published row. |
-| 3 | **Evaluations > Run all (Simulated Live workflow)** | Twenty scenarios drive the real voice-agent tool layer and the real scheduling API against isolated PostgreSQL databases. | Scenario results, each with its assertions. |
+| 3 | **Evaluations > Run all (Simulated Live workflow)** | Twenty-one scenarios drive the real voice-agent tool layer and the real scheduling API against isolated PostgreSQL databases. | Scenario results, each with its assertions. |
 | 4 | **A failure or block** | Run the evaluation after deliberately weakening a rule (see "Show a failure" below), or open a version with no evidence and try to promote. | A red scenario with the failed assertion, or "Promotion blocked: required coverage". |
 | 5 | **Readiness** | Readiness is computed on the server. The browser cannot supply or override it. Passing means the workflow simulation passed, and the page says real voice verification has not been completed. | Readiness checks, evidence level labelled. |
 | 6 | **Promote to Simulated Live** | Promotion moves a pointer after re-checking evidence under a row lock. It deploys nothing externally. | Deployment panel and history event with the evidence it used. |

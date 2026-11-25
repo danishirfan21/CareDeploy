@@ -28,7 +28,7 @@ Idempotency keys with a proposal-then-confirm flow; exclusion constraint plus a 
 
 ## Evaluation strategy
 
-Twenty scenarios run the real tools against isolated databases. The evaluator itself is tested by mutation: tests deliberately break the code (a tool that claims success without writing, an ignored idempotency key, broken scoping) and require the right scenario to fail. That review found a real coverage gap (EVAL-015), which was fixed. Known gap: no scenario covers the cancellation window.
+Twenty-one scenarios run the real tools against isolated databases. The evaluator itself is tested by mutation: tests deliberately break the code (a tool that claims success without writing, an ignored idempotency key, broken scoping) and require the right scenario to fail. That review found a real coverage gap (EVAL-015), which was fixed. A later mutation review found the cancellation-window rule was covered only by unit tests; EVAL-021 now covers it and a mutation test proves that bypassing the rule turns it red.
 
 ## Deployment controls
 

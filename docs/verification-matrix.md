@@ -11,7 +11,7 @@ Date of last update: 2026-11-25. Evidence references are test files or documents
 | Frontend (lint, types, format, build, component behavior) | Passed | `npm run lint/typecheck/format:check/build` | Results in `implementation-status.md`. |
 | Browser end to end (Playwright) | Passed | `apps/web/e2e/` | Chromium on one machine; also runs in CI. |
 | Scheduling under concurrency | Passed | `tests/test_scheduling_reliability.py` | A regression guard, not a proof of no other rare failure. |
-| Evaluations (20 scenarios, mutation tests) | Passed | `tests/test_evals_runner.py`, `evals/scenarios/` | Workflow simulation only. No model-driven (Mode B) run. Cancellation-window policy has no scenario. |
+| Evaluations (21 scenarios, mutation tests) | Passed | `tests/test_evals_runner.py`, `evals/scenarios/` | Workflow simulation only. No model-driven (Mode B) run. Cancellation window covered by EVAL-021 (mutation-tested). |
 | Deployment controls (readiness, promote, rollback, history) | Passed | `tests/test_deployments.py`, `tests/test_lifecycle.py` | Promotion moves an internal pointer; nothing is deployed externally. |
 | Voice transport (token, session, worker channel, events) | Passed | `tests/test_voice_sessions.py`, `services/voice-agent/tests/` | No audio, no LiveKit server. |
 | Speech recognition | Not Run | `live-voice-test-plan.md` TEST-02 | Needs credentials. |

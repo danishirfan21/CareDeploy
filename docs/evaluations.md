@@ -25,7 +25,7 @@ Mode A scripts the caller. It cannot show that a model *chooses* these actions o
 
 ## Scenario files
 
-`evals/scenarios/EVAL-001.json` ... `EVAL-020.json`. The JSON file is the source of truth and is strictly validated before anything runs:
+`evals/scenarios/EVAL-001.json` ... `EVAL-021.json`. The JSON file is the source of truth and is strictly validated before anything runs:
 
 - unknown keys are rejected, ids must match `EVAL-NNN` and the file name, duplicate ids are rejected;
 - a scenario must declare at least one objective assertion or step expectation;

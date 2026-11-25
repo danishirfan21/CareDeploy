@@ -22,7 +22,7 @@ Statuses: **Open** (not attempted), **Blocked** (cannot be attempted without a m
 
 ## What is verified today
 
-Workflow simulation (Mode A) of twenty scenarios against the real tool layer, the real scheduling API and PostgreSQL. See `implementation-status.md` for the executed commands and counts.
+Workflow simulation (Mode A) of twenty-one scenarios against the real tool layer, the real scheduling API and PostgreSQL. See `implementation-status.md` for the executed commands and counts.
 
 ## How to retire an item
 
@@ -35,4 +35,4 @@ Workflow simulation (Mode A) of twenty scenarios against the real tool layer, th
 | VD-17 | Evidence-age policy | The 30-day evidence limit (`DEPLOYMENT_EVIDENCE_MAX_AGE_DAYS`) is a placeholder, not a reviewed policy. | Product and compliance review of how fresh evidence must be. | Open | Product decision | Before any real use |
 | VD-18 | Metrics at scale and clinic time zones | Metrics and call lists were tested on small sample data. Query plans, indexes and time-zone edge cases (DST, long ranges) are unverified at realistic volume. | Load realistic call volumes and run the metrics endpoint; check plans and boundaries. | Open | Realistic data | Before any real use |
 | VD-19 | Outcome classification against real calls | Classification rules are verified on constructed ledgers, not on real conversations. Real calls may produce combinations the rules label `unknown`. | Review classification of real calls against transcripts and the ledger. | Open | VD-01 | After live verification |
-| VD-20 | Cancellation-window policy has no evaluation scenario | A mutation review (M6) showed that removing the cancellation-window check from the API is not caught by any of the 20 scenarios; it is caught only by unit tests of the scheduling engine. | Add a scenario that cancels inside the window and expects a refusal, then re-run mutation checks. | Open | Backend unit tests only | Before relying on evaluations as the sole gate |
+| VD-20 | Cancellation-window policy has no evaluation scenario | A mutation review (M6) showed that removing the cancellation-window check was caught by none of the then 20 scenarios, only by scheduling unit tests. | EVAL-021 now cancels inside the window and expects `policy_violation`, an unchanged appointment, a single `booked` event and no new operation. `test_bypassed_cancellation_window_is_caught` bypasses `plan_cancel` and requires EVAL-021 to fail. | Resolved (local run, workflow simulation) | `tests/test_evals_runner.py`, `evals/scenarios/EVAL-021.json` | Done |

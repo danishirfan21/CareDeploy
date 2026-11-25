@@ -11,7 +11,7 @@ Machine: one Windows 10 development machine, local PostgreSQL 17 (port 5433). Da
 | Browser end to end | 45 passed in 6.6 min | `npm run test:e2e` (apps/web) | Chromium only. Includes viewport capture runs. |
 | Backend lint and types | ruff check and format clean; strict mypy clean (81 files) | `ruff`, `mypy` | |
 | Frontend | eslint, tsc, prettier clean; production build succeeds | `npm run lint/typecheck/format:check/build` | |
-| Evaluation workflow simulation | 20 of 20 scenarios passed for each sample clinic | Evaluations page, "Run evaluation" | Deterministic workflow only; LLM and real-audio modes Not run. |
+| Evaluation workflow simulation | 20 of 20 scenarios passed for each sample clinic in the recorded UI run (before EVAL-021 was added); EVAL-021 has passed in the automated suite but has not been re-run through the UI for both clinics | Evaluations page, "Run evaluation" | Deterministic workflow only; LLM and real-audio modes Not run. |
 | Contention fix | 1 failure in 15 runs before; 30 of 30 passes after | see `concurrency-investigation.md` | Probabilistic regression guard. |
 | Evaluator can fail | Five mutation tests each break the code and require a red scenario | `tests/test_evals_runner.py` | One known gap: cancellation window (VD-20). |
 | Screenshots | `docs/images/` | Playwright against the running dev stack | Development build, sample data. |
