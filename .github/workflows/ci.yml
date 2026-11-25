@@ -1,7 +1,7 @@
 # Continuous integration for CareDeploy.
 #
-# STATUS: this workflow has never run on GitHub. It was written and statically reviewed, but no
-# remote run exists, so nothing here is evidence of a passing build. See docs/verification-matrix.md.
+# STATUS: first remote run failed (Next route types were missing on a clean checkout); fixed in
+# commit 8111064, after which all six jobs passed on GitHub. See docs/verification-matrix.md.
 #
 # Everything uses throwaway credentials. No job reaches LiveKit, OpenAI or any paid service. Live
 # voice tests are manual (docs/live-voice-test-plan.md) and are deliberately not part of CI.

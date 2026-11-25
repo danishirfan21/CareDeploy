@@ -15,7 +15,7 @@ A multi-clinic deployment platform for AI voice agents in healthcare front-desk 
 | M5 | Call operations, metrics, cost estimates, Simulated Live deployment pointer with rollback | Built and tested on simulated data. Live audio and real cost rates are not verified |
 | M6 | Integration, reliability, safety review, reproducibility, demo preparation | Implementation and demonstration preparation complete. **Not** fully live-voice verified |
 
-What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow has **never run** on GitHub and Docker Compose has **never been run** (Docker is unavailable on the development machine), so no CI result or Compose result is claimed. The full per-area picture is in [`docs/verification-matrix.md`](docs/verification-matrix.md).
+What has and has not been verified is tracked in [`docs/implementation-status.md`](docs/implementation-status.md). The GitHub Actions workflow passed on GitHub for commit 8111064 (backend, migration smoke, voice service, frontend and Playwright jobs; after one real failure on the first run, fixed). Docker Compose has **never been run** (Docker is unavailable on the development machine), so no Compose result is claimed. The full per-area picture is in [`docs/verification-matrix.md`](docs/verification-matrix.md).
 
 This is an independent portfolio project using sample data. It is not affiliated with any company and is not HIPAA compliant.
 

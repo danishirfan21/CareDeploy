@@ -15,8 +15,9 @@ Machine: one Windows 10 development machine, local PostgreSQL 17 (port 5433). Da
 | Contention fix | 1 failure in 15 runs before; 30 of 30 passes after | see `concurrency-investigation.md` | Probabilistic regression guard. |
 | Evaluator can fail | Five mutation tests each break the code and require a red scenario | `tests/test_evals_runner.py` | One known gap: cancellation window (VD-20). |
 | Screenshots | `docs/images/` | Playwright against the running dev stack | Development build, sample data. |
+| CI | All six jobs passed on GitHub for commit 8111064 after one fixed failure | GitHub Actions | Does not include live voice. |
 | Secret scan | No key patterns in tracked files | `git ls-files` + pattern search | Pattern-based, not exhaustive. |
 
 ## Not available
 
-Live voice calls, speech accuracy, interruption behavior, model-driven evaluation results, CI results, Docker Compose results, and any cost figures. See [`verification-matrix.md`](verification-matrix.md).
+Live voice calls, speech accuracy, interruption behavior, model-driven evaluation results, Docker Compose results, and any cost figures. See [`verification-matrix.md`](verification-matrix.md).
