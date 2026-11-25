@@ -19,7 +19,7 @@ Computed on the server for every promote, rollback and readiness request, from t
 2. The latest completed full-suite workflow run for that version passed every scenario in the mandatory suite.
 3. No critical scenario failed.
 4. The evidence was produced by the **current** scenario suite (suite hash matches).
-5. The evidence is recent (default 30 days, `DEPLOYMENT_EVIDENCE_MAX_AGE_DAYS`).
+5. The evidence is recent (default 30 days, `DEPLOYMENT_EVIDENCE_MAX_AGE_DAYS`). The 30 days is a demo assumption, not an industry requirement.
 6. It is not already the active version.
 
 For rollback the target must also have been deployed before. Rollback uses the same evidence rules, so an unsafe target (never deployed, no fresh evidence, older suite) is rejected.

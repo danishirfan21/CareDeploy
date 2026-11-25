@@ -43,3 +43,7 @@ Client-rendered pages calling the API via `src/lib/api/client.ts`. `cacheCompone
 - `app/ops/`: pure outcome classification (`classify.py`), redaction (`redact.py`), cost estimation from a rates file (`pricing.py`), call list/detail (`calls.py`) and metrics (`metrics.py`). `app/api/ops.py` exposes `/calls`, `/calls/{id}` and `/call-metrics`.
 - `create_session` resolves the **active deployment** and pins `config_version` and `deployment_id` on the session.
 - Details: `operations.md`, `deployments.md`, `observability.md`.
+
+## Reliability and exposure notes (M6)
+
+Booking and rescheduling take a per-clinic transaction advisory lock before touching appointments, which removed a rare PostgreSQL deadlock (see [`concurrency-investigation.md`](concurrency-investigation.md)). The API refuses to start with wildcard CORS, or with `APP_ENV=production` unless the unauthenticated-admin risk is acknowledged ([`security.md`](security.md)). The `/dev` pages return 404 in production builds.

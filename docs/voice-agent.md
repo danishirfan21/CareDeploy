@@ -63,3 +63,9 @@ The Playwright tests use a transport that carries no audio and play the worker's
 ## Evaluation (M4)
 
 The evaluation engine drives this agent's own `Toolbox`, `SchedulingClient` and `build_instructions` against the real scheduling API; it does not contain a second agent. Changing shared tool behavior therefore changes evaluation results (`apps/api/tests/test_evals_runner.py` mutates the toolbox and requires the confirmation scenario to fail). Scripted workflow runs cannot show that the language model picks these actions or that speech works; those remain live verification items in `verification-debt.md`. The shared instructions do not tell the agent to direct a possible emergency to emergency services; that is recorded as VD-12 and was not changed in M4.
+
+## M6 additions
+
+- **Emergency guidance:** the shared instructions tell the agent to direct callers to 911 or the nearest emergency room, stop scheduling, escalate, and never diagnose, advise treatment, assume emergency services were contacted, or claim a transfer. EVAL-020 checks the instruction content and that scheduling tools are not called; whether a model obeys is **unverified** (VD-12).
+- **Credential preflight:** `python -m voice_agent.preflight` reports which `VOICE_*` / `LIVEKIT_*` variables are missing, by name only. It never reads `OPENAI_API_KEY` from the ambient environment and never prints values.
+- **Tests:** see [`voice-testing.md`](voice-testing.md) for what each kind of test proves, and [`live-voice-test-plan.md`](live-voice-test-plan.md) for the ten manual tests (all Not Run).

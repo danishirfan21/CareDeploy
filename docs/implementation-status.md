@@ -1,5 +1,19 @@
 # Implementation status
 
+## M6 - Final integration, reliability, safety, demo preparation (2026-11-25): IMPLEMENTATION AND DEMONSTRATION PREPARATION COMPLETE; NOT fully live-voice verified; NOT pushed
+
+### Verified (actually executed)
+- Backend: **239 passed in 35m08s** (sequential); ruff, ruff format and strict mypy clean. Voice service: 27 passed. Playwright: 45 passed. eslint, tsc, prettier and `next build` pass.
+- Bug fixed: intermittent 503 was a PostgreSQL deadlock (`40P01`) between overlapping inserts; fixed with a per-clinic advisory lock (VD-09 resolved, see `concurrency-investigation.md`).
+- Bugs fixed: metrics de-duplicated tool calls across sessions; unvalidated cost-rate files; duplicate caller transcripts counted as new turns; latency truncated instead of rounded; EVAL-015 coverage gap; mobile overflow of long values on the clinic page.
+- Added: full 20-step lifecycle test, evaluator mutation tests, exposure guard and `/dev` production gate, voice credential preflight, runtime transport tests, rewritten CI workflow, security review, verification matrix, live voice test plan, demo script and evidence, case study, test-performance analysis.
+
+### Not verified
+- Live voice (TEST-01 to TEST-10 all Not Run), speech recognition and synthesis, barge-in, model behavior (including emergency guidance, VD-12 partial).
+- GitHub Actions never run. Docker Compose never run (Docker unavailable).
+- The test-time optimization attempted (background database drops) was slower and was reverted; no speedup is claimed (`test-performance.md`).
+- Cancellation-window policy has no evaluation scenario (VD-20).
+
 ## M5 - Operations, deployment and observability (2026-11-25): COMPLETE ON SIMULATED DATA; NOT PUSHED; live audio, real cost rates and multi-operator use NOT VERIFIED
 
 Activity now has a real Calls tab (list, filters, search, pagination, details, three compact metrics with the rest behind "Show details"). Outcomes are classified from persisted evidence (the scheduling ledger, call status and events), never from the agent's wording. A "Simulated Live" deployment pointer selects the configuration version that new voice sessions use. Promotion and rollback are decided on the server from the M4 readiness evidence, under a clinic row lock with compare-and-swap and clinic-scoped idempotency keys. History is append-only. See `operations.md`, `deployments.md`, `observability.md`.

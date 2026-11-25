@@ -50,3 +50,8 @@ Stored event payloads, the call detail and the technical section pass through `a
 - One operator, no accounts (`local-dev-operator`).
 - The call list is not real time; the page loads on open and when filters change.
 - Counts and rates are over the persisted sample data, which is small. Small samples are flagged.
+
+## M6 fixes
+
+- Tool-call counts are keyed per session; previously the same provider call id repeating across sessions collapsed into one.
+- A cost rates file is now validated (known units, positive `per`, non-negative amounts, sane date ranges, no overlapping ranges); an invalid file logs a warning and cost shows as unavailable instead of producing wrong figures.

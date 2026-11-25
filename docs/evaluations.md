@@ -102,3 +102,7 @@ Mode B is enabled only when `EVAL_LLM_API_KEY` is set **and** `EVAL_LLM_APPROVED
 - Single-operator development: the requester is recorded as `local-dev-operator`; there is no authentication.
 - One evaluation per clinic at a time; the worker runs scenarios sequentially.
 - A passing Mode A run is evidence about backend and tool behavior only. See `verification-debt.md` for everything live that is still unverified.
+
+## M6 review: can the evaluator fail?
+
+Mutation tests in `apps/api/tests/test_evals_runner.py` deliberately break the code under test (a tool reporting success without writing, an ignored idempotency key, broken clinic or patient scoping, an ownership bypass, disabled confirmation, bypassed hours) and require the right scenario to fail. This found one real gap: EVAL-015 did not cover a foreign patient token against a patient's appointment list; a step was added (scenario version bumped, which invalidates older evidence by design). One gap remains open: no scenario covers the cancellation window (VD-20). Evidence age is configurable via `DEPLOYMENT_EVIDENCE_MAX_AGE_DAYS` (default 30, a demo assumption).

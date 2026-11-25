@@ -39,4 +39,4 @@ Open live-verification items are tracked in `verification-debt.md`.
 
 ## Use in deployment (M5)
 
-Promotion and rollback recompute eligibility on the server from this evidence: a published version, a completed full-suite workflow run with every scenario passed, no critical failure, evidence from the current scenario suite and recent (default 30 days). Rollback also needs a previously deployed target. Passing means the workflow simulation passed, nothing more; live audio verification stays pending.
+Promotion and rollback recompute eligibility on the server from this evidence: a published version, a completed full-suite workflow run with every scenario passed, no critical failure, evidence from the current scenario suite and recent (default 30 days, set by `DEPLOYMENT_EVIDENCE_MAX_AGE_DAYS`; this is a demo assumption, not an industry requirement). Rollback also needs a previously deployed target. Passing means the workflow simulation passed, nothing more; live audio verification stays pending.
