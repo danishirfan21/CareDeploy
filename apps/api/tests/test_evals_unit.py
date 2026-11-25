@@ -27,9 +27,9 @@ def _raw() -> dict[str, Any]:
 
 
 # ---- the committed suite ---------------------------------------------------------------------
-def test_suite_has_the_twenty_required_scenarios() -> None:
+def test_suite_has_the_required_scenarios() -> None:
     suite = load_suite()
-    assert [s.id for s in suite] == [f"EVAL-{i:03d}" for i in range(1, 21)]
+    assert [s.id for s in suite] == [f"EVAL-{i:03d}" for i in range(1, 22)]
     assert {s.category for s in suite} == set(CATEGORY_LABELS)
     assert all(s.expected.behavior for s in suite)
     assert all(s.not_evaluated_in_workflow for s in suite)  # honest about what Mode A cannot see
@@ -98,7 +98,7 @@ def test_empty_directory_is_an_error(tmp_path: Path) -> None:
 # ---- selection -------------------------------------------------------------------------------
 def test_selection_modes() -> None:
     suite = load_suite()
-    assert len(select(suite, Selection("all"))) == 20
+    assert len(select(suite, Selection("all"))) == 21
     assert [s.id for s in select(suite, Selection("scenario", "EVAL-005"))] == ["EVAL-005"]
     cat = select(suite, Selection("category", "appointment_workflows"))
     assert len(cat) == 4 and {s.category for s in cat} == {"appointment_workflows"}

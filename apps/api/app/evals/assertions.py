@@ -8,6 +8,7 @@ from app.db import session as db_session
 from app.evals.fixtures import World, resolve
 from app.evals.schema import (
     AppointmentCount,
+    AppointmentEvents,
     AppointmentMoved,
     AppointmentStatus,
     Assertion,
@@ -29,7 +30,7 @@ from app.evals.schema import (
     TraceExcludes,
 )
 from app.evals.trace import Check, Trace
-from app.models import Appointment, Operation, Patient, Proposal
+from app.models import Appointment, AppointmentEvent, Operation, Patient, Proposal
 
 STATUSES = ("scheduled", "cancelled", "completed", "any")
 
@@ -178,6 +179,22 @@ async def _one(a: Assertion, w: World, t: Trace) -> Check:
             got == a.status,
             f"{a.appointment}: {a.status}",
             f"{a.appointment}: {got}",
+        )
+    if isinstance(a, AppointmentEvents):
+        async with db_session.get_sessionmaker()() as s:
+            kinds = list(
+                await s.scalars(
+                    select(AppointmentEvent.event_type)
+                    .where(AppointmentEvent.appointment_id == w.appointments[a.appointment])
+                    .order_by(AppointmentEvent.created_at, AppointmentEvent.id)
+                )
+            )
+        return _chk(
+            a,
+            "appointment_events",
+            kinds == a.kinds,
+            f"{a.appointment} events: {a.kinds}",
+            f"{a.appointment} events: {kinds}",
         )
     if isinstance(a, AppointmentMoved):
         async with db_session.get_sessionmaker()() as s:

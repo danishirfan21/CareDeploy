@@ -352,6 +352,25 @@ def compute_variables(config: ClinicConfig, now: datetime) -> dict[str, str]:
             d2 = opens_seen[1]
             o2, _c2 = hours[d2.weekday()]
             out["slot_next_day"] = _utc_iso(at(d2, o2, 60))
+    # A bookable time that is already inside the cancellation window, so a fixture appointment can
+    # exist yet fall within the period in which the clinic does not allow cancelling it.
+    window = timedelta(hours=config.policy.cancellation_window_hours)
+    notice = timedelta(hours=config.policy.min_notice_hours + 1)
+    duration = timedelta(minutes=std.duration_minutes if std else 30)
+    for i in range(0, 3):
+        d = local_now.date() + timedelta(days=i)
+        if d.weekday() not in hours or (i == 0 and not config.policy.same_day_booking):
+            continue
+        o, c = hours[d.weekday()]
+        start = at(d, o)
+        while start + duration <= at(d, c):
+            if start >= now + notice and start < now + window:
+                out["inside_cancel_window_start"] = _utc_iso(start)
+                break
+            start += timedelta(minutes=30)
+        if "inside_cancel_window_start" in out:
+            break
+    out["cancellation_window_hours"] = str(config.policy.cancellation_window_hours)
     if closed:
         out["closed_date"] = closed.isoformat()
         out["closed_day_start"] = _utc_iso(at(closed, "10:00"))

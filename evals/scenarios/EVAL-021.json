@@ -1,0 +1,165 @@
+{
+  "id": "EVAL-021",
+  "version": 1,
+  "name": "Cancellation inside the policy window is refused",
+  "description": "A verified caller asks to cancel an appointment that starts inside the clinic's cancellation window. The backend must refuse, the appointment must stay scheduled, and nothing may be recorded as a change.",
+  "category": "scheduling_integrity",
+  "severity": "critical",
+  "modes": [
+    "workflow"
+  ],
+  "clock": "2026-03-02T15:00:00Z",
+  "requires": {
+    "capabilities": [
+      "cancel_appointment"
+    ],
+    "standard_type": true
+  },
+  "fixtures": {
+    "patients": [
+      {
+        "key": "p1",
+        "name": "Jordan Rivera",
+        "dob": "1985-04-12",
+        "phone": "(512) 555-0111"
+      }
+    ],
+    "appointments": [
+      {
+        "key": "appt1",
+        "patient": "p1",
+        "start": "${inside_cancel_window_start}"
+      }
+    ]
+  },
+  "actors": [
+    "caller"
+  ],
+  "expected": {
+    "behavior": "Find the appointment, try to propose the cancellation, be told the clinic policy forbids it, and explain it without cancelling.",
+    "agent_actions": [
+      "verify_patient",
+      "get_patient_appointments",
+      "propose_cancellation"
+    ],
+    "forbidden_actions": [
+      "confirm_operation",
+      "propose_booking",
+      "propose_reschedule"
+    ],
+    "operation_outcome": "None.",
+    "database_changes": "None. The appointment stays scheduled and gains no cancellation event.",
+    "escalation": "not_applicable"
+  },
+  "workflow": {
+    "steps": [
+      {
+        "kind": "tool",
+        "tool": "verify_patient",
+        "args": {
+          "patient_name": "${patient.p1.name}",
+          "date_of_birth": "${patient.p1.dob}",
+          "phone_last4": "${patient.p1.last4}"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "get_patient_appointments",
+        "args": {},
+        "actor": "caller",
+        "expect": {
+          "ok": true
+        }
+      },
+      {
+        "kind": "tool",
+        "tool": "propose_cancellation",
+        "args": {
+          "appointment_ref": "A1",
+          "reason": "Schedule conflict"
+        },
+        "actor": "caller",
+        "expect": {
+          "ok": false,
+          "code": "policy_violation"
+        },
+        "id": "try_cancel"
+      },
+      {
+        "kind": "api",
+        "method": "POST",
+        "path": "/proposals",
+        "clinic": "primary",
+        "id": "direct_cancel",
+        "as_patient": "p1",
+        "body": {
+          "action": "cancel",
+          "appointment_id": "${appt.appt1.id}",
+          "reason": "Schedule conflict"
+        },
+        "expect": {
+          "ok": false
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "type": "tool_result",
+        "tool": "propose_cancellation",
+        "code": "policy_violation"
+      },
+      {
+        "type": "tool_not_called",
+        "tool": "confirm_operation"
+      },
+      {
+        "type": "appointment_status",
+        "appointment": "appt1",
+        "status": "scheduled"
+      },
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "scheduled",
+        "delta": 0
+      },
+      {
+        "type": "appointment_count",
+        "scope": "patient",
+        "patient": "p1",
+        "status": "cancelled",
+        "delta": 0
+      },
+      {
+        "type": "appointment_events",
+        "appointment": "appt1",
+        "kinds": [
+          "booked"
+        ]
+      },
+      {
+        "type": "operation_count",
+        "delta": 0
+      },
+      {
+        "type": "proposal_count",
+        "status": "pending",
+        "equals": 0
+      },
+      {
+        "type": "no_committed_report"
+      }
+    ],
+    "timeout_seconds": 40
+  },
+  "not_evaluated_in_workflow": [
+    "Whether a language model chooses these tool calls and phrases the replies correctly."
+  ],
+  "isolation": "fresh_clinic_per_scenario",
+  "cleanup": "drop_run_database"
+}

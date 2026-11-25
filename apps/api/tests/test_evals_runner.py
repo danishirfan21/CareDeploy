@@ -86,7 +86,7 @@ async def _leftover_databases() -> list[str]:
 async def test_full_suite_passes(world: World) -> None:
     run_id = await run_eval(world)
     rs = await results(run_id)
-    assert len(rs) == 20
+    assert len(rs) == 21
     assert summarize(rs) == {k: ("passed", None) for k in sorted(rs)}
 
 
@@ -121,6 +121,31 @@ async def test_backend_rule_regression_is_caught(
     monkeypatch.setattr(engine, "check_slot", lambda *a, **k: None)
     rs = await results(await run_eval(world, "scenario", "EVAL-012"))
     assert rs["EVAL-012"].status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_cancellation_window_scenario_passes_and_checks_the_audit_trail(
+    world: World,
+) -> None:
+    """EVAL-021 runs for real: the appointment is inside the window, the backend refuses, and the
+    appointment keeps exactly its original audit trail. EVAL-004 (outside the window) still cancels."""
+    rs = await results(await run_eval(world, "all", None))
+    assert rs["EVAL-021"].status == "passed" and rs["EVAL-004"].status == "passed"
+
+
+@pytest.mark.asyncio
+async def test_bypassed_cancellation_window_is_caught(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Removing the cancellation-window rule from the backend turns EVAL-021 red, while the
+    normal cancellation scenario keeps passing (it was always allowed)."""
+    from app.scheduling import service
+
+    monkeypatch.setattr(service, "plan_cancel", lambda *a, **k: None)
+    rs = await results(await run_eval(world, "category", "scheduling_integrity"))
+    assert rs["EVAL-021"].status == "failed"
+    failure = rs["EVAL-021"].failure or ""
+    assert "policy_violation" in failure or "scheduled" in failure or "events" in failure
 
 
 @pytest.mark.asyncio

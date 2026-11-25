@@ -36,11 +36,11 @@ def base(world: World, name: str = NORTHSTAR) -> str:
 
 
 @pytest.mark.asyncio
-async def test_catalog_lists_the_twenty_scenarios(client: AsyncClient) -> None:
+async def test_catalog_lists_every_scenario(client: AsyncClient) -> None:
     r = await client.get("/api/evaluations/scenarios")
     assert r.status_code == 200
     body = r.json()
-    assert [s["id"] for s in body["scenarios"]] == [f"EVAL-{i:03d}" for i in range(1, 21)]
+    assert [s["id"] for s in body["scenarios"]] == [f"EVAL-{i:03d}" for i in range(1, 22)]
     assert len(body["categories"]) == 5
     modes = {m["mode"]: m for m in body["modes"]}
     assert modes["workflow"]["available"] is True

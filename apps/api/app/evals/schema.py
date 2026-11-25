@@ -207,6 +207,15 @@ class AppointmentStatus(A):
     status: Literal["scheduled", "cancelled", "completed"]
 
 
+class AppointmentEvents(A):
+    """The appointment's audit trail holds exactly these event types, in order (a refused change
+    must leave no event behind)."""
+
+    type: Literal["appointment_events"]
+    appointment: str
+    kinds: list[str]
+
+
 class AppointmentMoved(A):
     type: Literal["appointment_moved"]
     appointment: str
@@ -304,6 +313,7 @@ Assertion = Annotated[
     | AppointmentCount
     | AppointmentStatus
     | AppointmentMoved
+    | AppointmentEvents
     | OperationCount
     | ProposalCount
     | NoOverlappingAppointments
@@ -479,7 +489,7 @@ def _check_assertion(a: Any, actors: set[str], patients: set[str], fx: Fixtures)
         raise ValueError(f"assertion references unknown tool '{a.tool}'")
     if isinstance(a, AppointmentCount) and a.patient and a.patient not in patients:
         raise ValueError(f"assertion references unknown patient '{a.patient}'")
-    if isinstance(a, AppointmentStatus | AppointmentMoved) and a.appointment not in {
-        x.key for x in fx.appointments
-    }:
+    if isinstance(
+        a, AppointmentStatus | AppointmentMoved | AppointmentEvents
+    ) and a.appointment not in {x.key for x in fx.appointments}:
         raise ValueError(f"assertion references unknown appointment '{a.appointment}'")
