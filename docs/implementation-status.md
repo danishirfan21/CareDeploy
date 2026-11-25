@@ -1,9 +1,9 @@
 # Implementation status
 
-## M6 - Final integration, reliability, safety, demo preparation (2026-11-25): IMPLEMENTATION AND DEMONSTRATION PREPARATION COMPLETE; NOT fully live-voice verified; NOT pushed
+## M6 - Final integration, reliability, safety, demo preparation (2026-11-25): IMPLEMENTATION AND DEMONSTRATION PREPARATION COMPLETE; NOT fully live-voice verified; pushed (GitHub Actions passed for 5d8a0f6, 5069533 and 69de076)
 
 ### Verified (actually executed)
-- Backend: **239 passed in 35m08s** (sequential); ruff, ruff format and strict mypy clean. Voice service: 27 passed. Playwright: 45 passed. eslint, tsc, prettier and `next build` pass.
+- Backend: **241 passed, 0 failed, 0 skipped in 37m06s** (sequential, local PostgreSQL; run after EVAL-021 and the extended lifecycle test were added; the earlier 239 passed in 35m08s). ruff, ruff format and strict mypy clean. Voice service: 27 passed. Playwright: 45 passed. eslint, tsc, prettier and `next build` pass.
 - Bug fixed: intermittent 503 was a PostgreSQL deadlock (`40P01`) between overlapping inserts; fixed with a per-clinic advisory lock (VD-09 resolved, see `concurrency-investigation.md`).
 - Bugs fixed: metrics de-duplicated tool calls across sessions; unvalidated cost-rate files; duplicate caller transcripts counted as new turns; latency truncated instead of rounded; EVAL-015 coverage gap; mobile overflow of long values on the clinic page.
 - Added: full 20-step lifecycle test, evaluator mutation tests, exposure guard and `/dev` production gate, voice credential preflight, runtime transport tests, rewritten CI workflow, security review, verification matrix, live voice test plan, demo script and evidence, case study, test-performance analysis.
