@@ -19,8 +19,8 @@ function Section({
 function Row({ k, v }: { k: string; v: React.ReactNode }) {
   return (
     <div className="flex gap-4 py-0.5">
-      <dt className="w-44 shrink-0 text-muted">{k}</dt>
-      <dd className="min-w-0">{v}</dd>
+      <dt className="w-32 shrink-0 text-muted sm:w-44">{k}</dt>
+      <dd className="min-w-0 break-words">{v}</dd>
     </div>
   );
 }

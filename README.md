@@ -30,6 +30,19 @@ This is an independent portfolio project using sample data. It is not affiliated
 - **Voice agent (M3):** a LiveKit worker with a speech-to-text, LLM and text-to-speech pipeline. It schedules only through the M2 API, runs on the clinic's frozen published configuration, and reports transcripts, tool activity and outcomes to the Playground. See [`docs/voice-agent.md`](docs/voice-agent.md).
 - **Evaluations (M4):** twenty version-controlled scenarios drive the real voice-agent tools and scheduling API in isolated databases, with deterministic assertions, persisted immutable results, a deployment-readiness view that never merges evidence levels, and regression comparison. See [`docs/evaluations.md`](docs/evaluations.md).
 
+## Screenshots
+
+Captured from the running app against the two sample clinics (development build, sample data).
+
+| | |
+| --- | --- |
+| ![Clinic detail](docs/images/clinic-desktop.png) | ![Evaluations with readiness](docs/images/evaluations-clinic-desktop.png) |
+| Clinic with published versions and the active Simulated Live version | Twenty scenarios and readiness, with real-audio and LLM modes shown as Not run |
+| ![Playground](docs/images/playground-desktop.png) | ![Activity](docs/images/activity-clinic-desktop.png) |
+| Playground (needs voice credentials to start a call) | Activity with persisted calls and evaluation runs |
+| ![Clinic on mobile](docs/images/clinic-mobile.png) | |
+| Clinic page at phone width | |
+
 ## Architecture
 
 ```
