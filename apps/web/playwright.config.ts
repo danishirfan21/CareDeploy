@@ -13,7 +13,11 @@ export default defineConfig({
   testDir: "./e2e",
   workers: 1,
   fullyParallel: false,
-  use: { baseURL: `http://localhost:${WEB_PORT}` },
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
+  use: {
+    baseURL: `http://localhost:${WEB_PORT}`,
+    trace: "retain-on-failure",
+  },
   webServer: [
     {
       command: `${python} -m app.testdb caredeploy_e2e --seed --sandbox --serve ${API_PORT}`,

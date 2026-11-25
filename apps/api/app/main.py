@@ -9,7 +9,7 @@ from sqlalchemy.exc import DBAPIError
 
 from app import __version__
 from app.api import clinics, deployments, evals, health, ops, scheduling, voice
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.scheduling.errors import DependencyUnavailable, SchedulingError
 
 logger = logging.getLogger("caredeploy")
@@ -22,7 +22,25 @@ def _error_response(err: SchedulingError) -> JSONResponse:
     return JSONResponse(err.body(), status_code=err.status_code, headers=err.headers)
 
 
+def check_exposure(settings: Settings) -> None:
+    """Refuse to start in a configuration that would publish the unauthenticated admin API.
+
+    A simple development safeguard, not authentication. See docs/security.md."""
+    problems: list[str] = []
+    if "*" in settings.cors_origin_list:
+        problems.append("CORS_ORIGINS must list explicit origins, not '*'")
+    production = settings.app_env.lower() in ("production", "prod")
+    if production and not settings.allow_unauthenticated_admin:
+        problems.append(
+            "APP_ENV=production but the API has no user authentication; put it behind your own "
+            "access control and set ALLOW_UNAUTHENTICATED_ADMIN=true to acknowledge this"
+        )
+    if problems:
+        raise RuntimeError("Unsafe configuration: " + "; ".join(problems))
+
+
 def create_app() -> FastAPI:
+    check_exposure(get_settings())
     app = FastAPI(title="CareDeploy API", version=__version__)
     app.add_middleware(
         CORSMiddleware,

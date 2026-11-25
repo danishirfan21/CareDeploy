@@ -9,6 +9,12 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://caredeploy:caredeploy@localhost:5432/caredeploy"
     cors_origins: str = "http://localhost:3100"
 
+    # Exposure guard. CareDeploy has no user authentication: the admin API (publish, evaluate,
+    # promote, rollback) is open to anyone who can reach it. `production` therefore refuses to start
+    # unless the operator explicitly acknowledges that. This is a tripwire, not access control.
+    app_env: str = "development"
+    allow_unauthenticated_admin: bool = False
+
     # Scheduling (M2)
     authorization_ttl_minutes: int = 15
     proposal_ttl_minutes: int = 5
